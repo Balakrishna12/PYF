@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.pyt.postyourfun">
+<manifest
+	package="com.pyt.postyourfun"
+	xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
 	<uses-permission android:name="android.permission.USE_CREDENTIALS" />
@@ -23,10 +24,10 @@
 	<uses-permission android:name="android.permission.INTERNET" />
 
 	<application
+		android:name="android.support.multidex.MultiDexApplication"
 		android:allowBackup="true"
 		android:icon="@mipmap/ic_launcher"
 		android:label="@string/app_name"
-		android:name="android.support.multidex.MultiDexApplication"
 		android:theme="@android:style/Theme.Holo.Light.DarkActionBar">
 		<activity
 			android:name=".activity.SplashActivity"
@@ -72,6 +73,10 @@
 		<activity
 			android:name=".activity.Login_Activity"
 			android:label="@string/title_activity_login_"></activity>
+
+		<activity
+			android:name=".activity.ShowImageActivity"
+			android:label="@string/app_name" />
 
 		<!--PayPal service-->
 		<service

@@ -1,11 +1,10 @@
 package com.pyt.postyourfun.Fragment;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-
-import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,18 +15,15 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
-import android.widget.Switch;
 import android.widget.Toast;
 
-import com.pyt.postyourfun.Image.ImageDownloadManager;
 import com.pyt.postyourfun.Image.ImageDownloadMangerInterface;
 import com.pyt.postyourfun.Payment.PaymentController;
 import com.pyt.postyourfun.R;
 import com.pyt.postyourfun.Utils.Image.SmartImageView;
 import com.pyt.postyourfun.Utils.UserImageSQLiteHelper;
 import com.pyt.postyourfun.Utils.UsersImageModel;
-import com.pyt.postyourfun.activity.MainActivity;
+import com.pyt.postyourfun.activity.ShowImageActivity;
 import com.pyt.postyourfun.constants.Constants;
 import com.pyt.postyourfun.constants.PostYourFunApp;
 import com.pyt.postyourfun.dynamoDBClass.BucketMapper;
@@ -57,6 +53,8 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
 	private Button btn_get_image, btn_buy_image;
 	private EditText image_number;
 	private SmartImageView image_thumb;
+	private View hasDeviceView;
+	private Button notHasDeviceButton;
 
 	private ParkMapper selectedPark = new ParkMapper();
 	private ArrayList<ParkMapper> all_parks = new ArrayList<>();
@@ -105,9 +103,13 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
 		image_thumb = (SmartImageView) view.findViewById(R.id.image_thumb);
 		btn_buy_image = (Button) view.findViewById(R.id.btn_buy_image);
 		btn_get_image = (Button) view.findViewById(R.id.btn_get_image);
+		hasDeviceView = view.findViewById(R.id.layout_have_device);
+		notHasDeviceButton = (Button) view.findViewById(R.id.do_not_have_device);
 
 		btn_get_image.setOnClickListener(this);
 		btn_buy_image.setOnClickListener(this);
+		notHasDeviceButton.setOnClickListener(this);
+
 		park_spinner.setOnItemSelectedListener(this);
 		ride_spinner.setOnItemSelectedListener(this);
 
@@ -153,6 +155,13 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
 				new GetImageQuery().execute(device_id, image_number.getText().toString());
 			}
 			break;
+		case R.id.do_not_have_device:
+
+
+
+
+			startActivity(new Intent(getActivity(), ShowImageActivity.class));
+			break;
 		default:
 			break;
 		}
@@ -177,6 +186,9 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
 
 			break;
 		case R.id.ride_spinner:
+			boolean isHasMonitor = selected_rides.get(position).getHasMonitor();
+			hasDeviceView.setVisibility(isHasMonitor ? View.VISIBLE : View.GONE);
+			notHasDeviceButton.setVisibility(isHasMonitor ? View.GONE : View.VISIBLE);
 			break;
 		default:
 			break;

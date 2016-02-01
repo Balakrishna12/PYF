@@ -11,6 +11,14 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.*;
 @DynamoDBTable(tableName = "Device")
 public class DeviceMapper {
 
+	private String deviceId;
+	private String parkId;
+	private String name;
+	private boolean HasMonitor;
+	private boolean ImageSold;
+	private int NumberOfColumns;
+	private int NumberOfMinutes;
+
 	@DynamoDBHashKey(attributeName = "DeviceId")
 	public String getDeviceId() {
 		return deviceId;
@@ -38,27 +46,39 @@ public class DeviceMapper {
 		this.name = name;
 	}
 
-	@DynamoDBAttribute(attributeName = "Lattitude")
-	public String getLattitude() {
-		return lattitude;
+	@DynamoDBAttribute(attributeName = "HasMonitor")
+	public Boolean getHasMonitor() {
+		return HasMonitor;
 	}
 
-	public void setLattitude(String lattitude) {
-		this.lattitude = lattitude;
+	public void setHasMonitor(Boolean hasMonitor) {
+		HasMonitor = hasMonitor;
 	}
 
-	@DynamoDBAttribute(attributeName = "Longitude")
-	public String getLongitude() {
-		return longitude;
+	@DynamoDBAttribute(attributeName = "ImageSold")
+	public Boolean getImageSold() {
+		return ImageSold;
 	}
 
-	public void setLongitude(String longitude) {
-		this.longitude = longitude;
+	public void setImageSold(Boolean imageSold) {
+		ImageSold = imageSold;
 	}
 
-	private String deviceId;
-	private String parkId;
-	private String name;
-	private String lattitude;
-	private String longitude;
+	@DynamoDBAttribute(attributeName = "NumberOfColumns")
+	public int getNumberOfColumns() {
+		return NumberOfColumns;
+	}
+
+	public void setNumberOfColumns(int numberOfColumns) {
+		NumberOfColumns = numberOfColumns;
+	}
+
+	@DynamoDBAttribute(attributeName = "NumberOfMinutes")
+	public int getNumberOfMinutes() {
+		return NumberOfMinutes;
+	}
+
+	public void setNumberOfMinutes(int numberOfMinutes) {
+		NumberOfMinutes = numberOfMinutes;
+	}
 }
