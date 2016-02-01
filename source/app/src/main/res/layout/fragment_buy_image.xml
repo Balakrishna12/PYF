@@ -1,0 +1,129 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    tools:context="com.pyt.postyourfun.Fragment.BuyImageFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/scrollView" >
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="10dp"
+            >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:id="@+id/imageView3"
+                android:src="@drawable/logo2"
+                android:scaleType="fitXY"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Select your park"
+                android:id="@+id/textView6"
+                android:layout_gravity="center_horizontal" />
+
+            <Spinner
+                android:layout_width="240dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/park_spinner"
+                android:layout_gravity="center_horizontal"
+                android:spinnerMode="dropdown" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Select your ride"
+                android:id="@+id/textView7"
+                android:layout_gravity="center_horizontal" />
+
+            <Spinner
+                android:layout_width="240dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/ride_spinner"
+                android:layout_gravity="center_horizontal"
+                android:spinnerMode="dropdown" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Enter your image number"
+                android:id="@+id/textView8"
+                android:layout_gravity="center_horizontal" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="5dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true">
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="number"
+                    android:ems="10"
+                    android:id="@+id/image_number"
+                    android:layout_weight="1"
+                    android:background="@xml/edittext_background"
+                    android:padding="3dp"
+                    android:layout_marginRight="2dp"/>
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Get Image"
+                    android:id="@+id/btn_get_image"
+                    android:background="@xml/button_background"
+                    android:textColor="@android:color/white"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="3dp"/>
+            </LinearLayout>
+
+            <com.pyt.postyourfun.Utils.Image.SmartImageView
+                android:layout_width="250dp"
+                android:layout_height="150dp"
+                android:id="@+id/image_thumb"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/default_image"
+                android:scaleType="fitXY"
+                android:layout_marginTop="7dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="8 EUR for full quality image"
+                android:id="@+id/textView9"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Buy Image"
+                android:id="@+id/btn_buy_image"
+                android:padding="5dp"
+                android:textColor="@android:color/white"
+                android:layout_gravity="center_horizontal"
+                android:background="@xml/button_background"
+                android:layout_marginTop="10dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</FrameLayout>
