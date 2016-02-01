@@ -1,96 +1,95 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/white"
-    tools:context="com.pyt.postyourfun.Fragment.ViewImageFragment">
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/container"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@android:color/white"
+	tools:context="com.pyt.postyourfun.Fragment.ViewImageFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+	<!-- TODO: Update blank fragment layout -->
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="100dp"
-            android:id="@+id/imageView"
-            android:src="@drawable/logo2"
-            android:scaleType="fitXY" />
+		<ImageView
+			android:layout_width="wrap_content"
+			android:layout_height="100dp"
+			android:id="@+id/imageView"
+			android:src="@drawable/logo2"
+			android:scaleType="fitXY" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Your fun library"
-            android:id="@+id/textView11"
-            android:layout_margin="16dp"
-            android:layout_below="@+id/imageView" />
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="Your fun library"
+			android:id="@+id/textView11"
+			android:layout_margin="16dp"
+			android:layout_below="@+id/imageView" />
 
-        <GridView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/image_gridView"
-            android:numColumns="2"
-            android:stretchMode="columnWidth"
-            android:horizontalSpacing="10dp"
-            android:verticalSpacing="10dp"
-            android:layout_below="@+id/textView11"
-            android:layout_above="@+id/linelayout"
-            android:layout_marginRight="8dp"
-            android:minHeight="240dp"
-            android:minWidth="320dp"
-            android:clickable="false" />
+		<GridView
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:id="@+id/image_gridView"
+			android:numColumns="2"
+			android:stretchMode="columnWidth"
+			android:horizontalSpacing="10dp"
+			android:verticalSpacing="10dp"
+			android:layout_below="@+id/textView11"
+			android:layout_above="@+id/linelayout"
+			android:layout_marginRight="8dp"
+			android:minHeight="240dp"
+			android:minWidth="320dp"
+			android:clickable="false" />
 
-        <LinearLayout
-            android:id="@+id/linelayout"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_margin="16dp">
+		<LinearLayout
+			android:id="@+id/linelayout"
+			android:orientation="vertical"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:layout_margin="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Buy stuff"
-                android:id="@+id/textView12"
-                android:layout_marginBottom="8dp"
-                android:layout_above="@+id/textView13" />
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textAppearance="?android:attr/textAppearanceMedium"
+				android:text="Buy stuff"
+				android:id="@+id/textView12"
+				android:layout_marginBottom="8dp"
+				android:layout_above="@+id/textView13" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Send postcard to friends and family"
-                android:id="@+id/textView13"
-                android:layout_above="@+id/btn_shareFriends"
-                android:layout_marginBottom="8dp" />
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textAppearance="?android:attr/textAppearanceMedium"
+				android:text="Send postcard to friends and family"
+				android:id="@+id/textView13"
+				android:layout_above="@+id/btn_shareFriends"
+				android:layout_marginBottom="8dp" />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Share with Friends"
-                android:id="@+id/btn_shareFriends"
-                android:layout_gravity="bottom|center_horizontal"
-                android:textColor="@android:color/white"
-                android:padding="3dp"
-                android:background="@xml/button_background"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true" />
-        </LinearLayout>
+			<Button
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Share with Friends"
+				android:id="@+id/btn_shareFriends"
+				android:layout_gravity="bottom|center_horizontal"
+				android:textColor="@android:color/white"
+				android:padding="3dp"
+				android:background="@xml/button_background"
+				android:layout_alignParentBottom="true"
+				android:layout_centerHorizontal="true" />
+		</LinearLayout>
 
-    </RelativeLayout>
+	</RelativeLayout>
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/expanedImageView"
-        android:scaleType="centerInside"
-        android:visibility="gone"
-        android:layout_gravity="center_vertical" />
-
+	<ImageView
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:id="@+id/expanedImageView"
+		android:scaleType="centerInside"
+		android:visibility="gone"
+		android:layout_gravity="center_vertical" />
 
 </FrameLayout>

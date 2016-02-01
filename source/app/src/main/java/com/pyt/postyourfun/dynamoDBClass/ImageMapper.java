@@ -11,34 +11,40 @@ import com.amazonaws.regions.Region;
 @DynamoDBTable(tableName = "ImageList")
 public class ImageMapper {
 
-    private String imageID;
-    private String device_ID;
-    private long imageDate_Time;
-    private String imageDisplayID;
-    private String imageName;
-    private String region;
+	private String imageID;
+	private String device_ID;
+	private long imageDate_Time;
+	private String imageDisplayID;
+	private String imageName;
+	private String region;
 
-    @DynamoDBHashKey(attributeName = "ImageId")
-    public String getImageID(){return imageID;}
-    public void setImageID(String image_id){this.imageID = image_id;}
+	@DynamoDBHashKey(attributeName = "ImageId")
+	public String getImageID() {return imageID;}
 
-    @DynamoDBAttribute(attributeName = "DeviceId")
-    public String getDevice_ID(){return device_ID;}
-    public void setDevice_ID(String device_id){this.device_ID = device_id;}
+	public void setImageID(String image_id) {this.imageID = image_id;}
 
-    @DynamoDBAttribute(attributeName = "DateTime")
-    public long getImageDate_Time(){return imageDate_Time;}
-    public void setImageDate_Time(long date_time){this.imageDate_Time = date_time;}
+	@DynamoDBAttribute(attributeName = "DeviceId")
+	public String getDevice_ID() {return device_ID;}
 
-    @DynamoDBAttribute(attributeName = "DisplayId")
-    public String getImageDisplayID(){return imageDisplayID;}
-    public void setImageDisplayID(String image_display_id){this.imageDisplayID = image_display_id;}
+	public void setDevice_ID(String device_id) {this.device_ID = device_id;}
 
-    @DynamoDBAttribute(attributeName = "Name")
-    public String getImageName(){return imageName;}
-    public void setImageName(String image_name){this.imageName = image_name;}
+	@DynamoDBAttribute(attributeName = "DateTime")
+	public long getImageDate_Time() {return imageDate_Time;}
 
-    @DynamoDBAttribute(attributeName = "Region")
-    public String getRegion(){return region;}
-    public void setRegion(String region){this.region = region;}
+	public void setImageDate_Time(long date_time) {this.imageDate_Time = date_time;}
+
+	@DynamoDBAttribute(attributeName = "DisplayId")
+	public String getImageDisplayID() {return imageDisplayID;}
+
+	public void setImageDisplayID(String image_display_id) {this.imageDisplayID = image_display_id;}
+
+	@DynamoDBAttribute(attributeName = "Name")
+	public String getImageName() {return imageName;}
+
+	public void setImageName(String image_name) {this.imageName = image_name;}
+
+	@DynamoDBAttribute(attributeName = "Region")
+	public String getRegion() {return region;}
+
+	public void setRegion(String region) {this.region = region;}
 }

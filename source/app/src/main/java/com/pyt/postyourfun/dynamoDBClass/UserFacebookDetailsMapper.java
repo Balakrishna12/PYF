@@ -10,46 +10,44 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
  */
 @DynamoDBTable(tableName = "UserFacebookDetails")
 public class UserFacebookDetailsMapper {
-    private String userId;
-    private String facebookId;
-    private String email;
-    private String country;
+	private String userId;
+	private String facebookId;
+	private String email;
+	private String country;
 
-    @DynamoDBRangeKey(attributeName = "UserId")
-    public String getUserId() {
-        return userId;
-    }
+	@DynamoDBRangeKey(attributeName = "UserId")
+	public String getUserId() {
+		return userId;
+	}
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
 
-    @DynamoDBHashKey(attributeName = "FacebookId")
-    public String getFacebookId() {
-        return facebookId;
-    }
+	@DynamoDBHashKey(attributeName = "FacebookId")
+	public String getFacebookId() {
+		return facebookId;
+	}
 
-    public void setFacebookId(String facebookId) {
-        this.facebookId = facebookId;
-    }
+	public void setFacebookId(String facebookId) {
+		this.facebookId = facebookId;
+	}
 
-    @DynamoDBAttribute(attributeName = "Email")
-    public String getEmail() {
-        return email;
-    }
+	@DynamoDBAttribute(attributeName = "Email")
+	public String getEmail() {
+		return email;
+	}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    @DynamoDBAttribute(attributeName = "Country")
-    public String getCountry() {
-        return country;
-    }
+	@DynamoDBAttribute(attributeName = "Country")
+	public String getCountry() {
+		return country;
+	}
 
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-
+	public void setCountry(String country) {
+		this.country = country;
+	}
 }

@@ -23,145 +23,149 @@ import java.net.URLConnection;
  * Created by Simon on 7/18/2015.
  */
 public class ImageDownloadManager {
-    private static ImageDownloadManager sharedInstance = null;
-    private ImageDownloadMangerInterface callback = null;
+	private static ImageDownloadManager sharedInstance = null;
+	private ImageDownloadMangerInterface callback = null;
 
-    public static ImageDownloadManager getSharedInstance() {
-        if ( sharedInstance == null ) {
-            sharedInstance = new ImageDownloadManager();
-        }
-        return sharedInstance;
-    }
+	public static ImageDownloadManager getSharedInstance() {
+		if (sharedInstance == null) {
+			sharedInstance = new ImageDownloadManager();
+		}
+		return sharedInstance;
+	}
 
-    public void downloadImage(final String imageUrl, Context context, ImageDownloadMangerInterface callback) {
-        this.callback = callback;
-        new AsyncGetImageFromUrl(context, imageUrl).execute(imageUrl);
-    }
-/*
-    private void saveImageToDisk(final Bitmap bitmap, final String imageUrl) {
-        File outFile = new File(Constants.IMAGE_FULL_PATH);
-        outFile.mkdirs();
-        final boolean enabledImageDownload = outFile.exists();
-        ExecutorService downloadThread = Executors.newSingleThreadExecutor();
-        downloadThread.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (enabledImageDownload) {
+	public void downloadImage(final String imageUrl, Context context, ImageDownloadMangerInterface callback) {
+		this.callback = callback;
+		new AsyncGetImageFromUrl(context, imageUrl).execute(imageUrl);
+	}
 
-                    BufferedOutputStream ostream = null;
-                    try {
-                        String fileName = imageUrl.substring(imageUrl.lastIndexOf("/"));
-                        ostream = new BufferedOutputStream(new FileOutputStream(new File(Constants.IMAGE_FULL_PATH, fileName)), 2 * 1024);
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, ostream);
-                        if (callback != null) {
-                            callback.onSuccessImageDownload(true, imageUrl);
-                            return;
-                        }
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            if (ostream != null) {
-                                ostream.flush();
-                                ostream.close();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
+	/*
+		private void saveImageToDisk(final Bitmap bitmap, final String imageUrl) {
+			File outFile = new File(Constants.IMAGE_FULL_PATH);
+			outFile.mkdirs();
+			final boolean enabledImageDownload = outFile.exists();
+			ExecutorService downloadThread = Executors.newSingleThreadExecutor();
+			downloadThread.execute(new Runnable() {
+				@Override
+				public void run() {
+					if (enabledImageDownload) {
 
-                    if (callback != null) {
-                        callback.onSuccessImageDownload(false, "");
-                    }
-                }
-            }
-        });
-    }
-*/
-    protected class AsyncGetImageFromUrl extends AsyncTask<String, String, Void> {
+						BufferedOutputStream ostream = null;
+						try {
+							String fileName = imageUrl.substring(imageUrl.lastIndexOf("/"));
+							ostream = new BufferedOutputStream(new FileOutputStream(new File(Constants.IMAGE_FULL_PATH, fileName)), 2 * 1024);
+							bitmap.compress(Bitmap.CompressFormat.PNG, 100, ostream);
+							if (callback != null) {
+								callback.onSuccessImageDownload(true, imageUrl);
+								return;
+							}
+						} catch (FileNotFoundException e) {
+							e.printStackTrace();
+						} finally {
+							try {
+								if (ostream != null) {
+									ostream.flush();
+									ostream.close();
+								}
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
 
-        String imageUrl;
-        Context context;
+						if (callback != null) {
+							callback.onSuccessImageDownload(false, "");
+						}
+					}
+				}
+			});
+		}
+	*/
+	protected class AsyncGetImageFromUrl extends AsyncTask<String, String, Void> {
 
-        ProgressDialog mProgressDialog;
-        public AsyncGetImageFromUrl(Context context, String url) {
-            this.imageUrl = url;
-            this.context = context;
-            mProgressDialog = new ProgressDialog(this.context);
-            mProgressDialog.setMessage("Downloading file...");
-            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            mProgressDialog.setCancelable(false);
-        }
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mProgressDialog.show();
-        }
+		String imageUrl;
+		Context context;
 
-        @Override
-        protected void onProgressUpdate(String... progress) {
-            super.onProgressUpdate(progress);
-            mProgressDialog.setProgress(Integer.parseInt(progress[0]));
-        }
+		ProgressDialog mProgressDialog;
 
-        @Override
-        protected void onPostExecute(Void s) {
-            super.onPostExecute(s);
-            if (mProgressDialog != null){
-                mProgressDialog.dismiss();
-            }
-        }
+		public AsyncGetImageFromUrl(Context context, String url) {
+			this.imageUrl = url;
+			this.context = context;
+			mProgressDialog = new ProgressDialog(this.context);
+			mProgressDialog.setMessage("Downloading file...");
+			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			mProgressDialog.setCancelable(false);
+		}
 
-        @Override
-        protected Void doInBackground(String... aurl) {
-            int count;
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			mProgressDialog.show();
+		}
 
-            try {
-                URL url = new URL(aurl[0]);
-                URLConnection conexion = url.openConnection();
-                conexion.connect();
+		@Override
+		protected void onProgressUpdate(String... progress) {
+			super.onProgressUpdate(progress);
+			mProgressDialog.setProgress(Integer.parseInt(progress[0]));
+		}
 
-                int lenghtOfFile = conexion.getContentLength();
-                Log.d("ANDRO_ASYNC", "Length of file: " + lenghtOfFile);
-                OutputStream output = null;
-                Bitmap bitmap = null;
+		@Override
+		protected void onPostExecute(Void s) {
+			super.onPostExecute(s);
+			if (mProgressDialog != null) {
+				mProgressDialog.dismiss();
+			}
+		}
 
-                try {
-                    String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-                    InputStream input = new BufferedInputStream(url.openStream());
-                    output = new FileOutputStream(new File(Constants.IMAGE_FULL_PATH, fileName));
+		@Override
+		protected Void doInBackground(String... aurl) {
+			int count;
 
-                    byte data[] = new byte[30 * 1024];
+			try {
+				URL url = new URL(aurl[0]);
+				URLConnection conexion = url.openConnection();
+				conexion.connect();
 
-                    long total = 0;
+				int lenghtOfFile = conexion.getContentLength();
+				Log.d("ANDRO_ASYNC", "Length of file: " + lenghtOfFile);
+				OutputStream output = null;
+				Bitmap bitmap = null;
 
-                    while ((count = input.read(data)) != -1) {
-                        total += count;
-                        publishProgress(""+(int)((total*100)/lenghtOfFile));
-                        output.write(data, 0, count);
-                    }
-                    if (callback != null) {
-                        callback.onSuccessImageDownload(true, imageUrl);
-                        return null;
-                    }
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        if (output != null) {
-                            output.flush();
-                            output.close();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (callback != null) {
-                    callback.onSuccessImageDownload(false, "");
-                    return null;
-                }
-            } catch (Exception e) {}
-            return null;
-        }
-    }
+				try {
+					String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+					InputStream input = new BufferedInputStream(url.openStream());
+					output = new FileOutputStream(new File(Constants.IMAGE_FULL_PATH, fileName));
+
+					byte data[] = new byte[30 * 1024];
+
+					long total = 0;
+
+					while ((count = input.read(data)) != -1) {
+						total += count;
+						publishProgress("" + (int) ((total * 100) / lenghtOfFile));
+						output.write(data, 0, count);
+					}
+					if (callback != null) {
+						callback.onSuccessImageDownload(true, imageUrl);
+						return null;
+					}
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} finally {
+					try {
+						if (output != null) {
+							output.flush();
+							output.close();
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				if (callback != null) {
+					callback.onSuccessImageDownload(false, "");
+					return null;
+				}
+			} catch (Exception e) {
+			}
+			return null;
+		}
+	}
 }

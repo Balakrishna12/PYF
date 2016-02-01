@@ -13,114 +13,109 @@ import com.pyt.postyourfun.dynamoDBManager.DynamoDBManager;
 
 import java.util.ArrayList;
 
-
 public class UserTwitterDBManager extends DynamoDBManager {
-    private static String TAG = "UserTwitterDbManager";
-    private String userId;
-    private String twitterId;
-    private String email;
-    private String country;
-    /*
-     * Inserts users
-     */
-    public static void insertUsers(String userId, String twitterId, String email, String country) {
-        AmazonDynamoDBClient ddb = clientManager.ddb();
-        DynamoDBMapper mapper = new DynamoDBMapper(ddb);
+	private static String TAG = "UserTwitterDbManager";
+	private String userId;
+	private String twitterId;
+	private String email;
+	private String country;
 
-        try {
-            for (int i = 1; i <= 10; i++) {
-                UserTwitterDetails userTwitter = new UserTwitterDetails();
+	/*
+	 * Inserts users
+	 */
+	public static void insertUsers(String userId, String twitterId, String email, String country) {
+		AmazonDynamoDBClient ddb = clientManager.ddb();
+		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
-                userTwitter.setUserId(userId);
-                userTwitter.setTwitterId(twitterId);
-                userTwitter.setEmail(email);
-                userTwitter.setCountry(country);
+		try {
+			for (int i = 1; i <= 10; i++) {
+				UserTwitterDetails userTwitter = new UserTwitterDetails();
 
-                Log.d(TAG, "Inserting users");
-                mapper.save(userTwitter);
-                Log.d(TAG, "Users inserted");
-            }
-        } catch (AmazonServiceException ex) {
-            Log.e(TAG, "Error inserting users");
-            clientManager.wipeCredentialsOnAuthError(ex);
-        }
-    }
+				userTwitter.setUserId(userId);
+				userTwitter.setTwitterId(twitterId);
+				userTwitter.setEmail(email);
+				userTwitter.setCountry(country);
 
-    /*
-     * Scans the table and returns the list of users.
-     */
-    public static ArrayList<UserTwitterDetails> getUserTwitterList() {
+				Log.d(TAG, "Inserting users");
+				mapper.save(userTwitter);
+				Log.d(TAG, "Users inserted");
+			}
+		} catch (AmazonServiceException ex) {
+			Log.e(TAG, "Error inserting users");
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
+	}
 
-        AmazonDynamoDBClient ddb = clientManager.ddb();
-        DynamoDBMapper mapper = new DynamoDBMapper(ddb);
+	/*
+	 * Scans the table and returns the list of users.
+	 */
+	public static ArrayList<UserTwitterDetails> getUserTwitterList() {
 
-        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
-        try {
-            PaginatedScanList<UserTwitterDetails> result = mapper.scan(
-                    UserTwitterDetails.class, scanExpression);
+		AmazonDynamoDBClient ddb = clientManager.ddb();
+		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
-            ArrayList<UserTwitterDetails> resultList = new ArrayList<UserTwitterDetails>();
-            for (UserTwitterDetails up : result) {
-                resultList.add(up);
-            }
-            return resultList;
+		DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+		try {
+			PaginatedScanList<UserTwitterDetails> result = mapper.scan(UserTwitterDetails.class, scanExpression);
 
-        } catch (AmazonServiceException ex) {
-            clientManager.wipeCredentialsOnAuthError(ex);
-        }
+			ArrayList<UserTwitterDetails> resultList = new ArrayList<UserTwitterDetails>();
+			for (UserTwitterDetails up : result) {
+				resultList.add(up);
+			}
+			return resultList;
+		} catch (AmazonServiceException ex) {
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    /*
-     * Retrieves all of the attribute/value pairs for the specified user.
-     */
-    public static UserTwitterDetails getUserPreference(int userId) {
+	/*
+	 * Retrieves all of the attribute/value pairs for the specified user.
+	 */
+	public static UserTwitterDetails getUserPreference(int userId) {
 
-        AmazonDynamoDBClient ddb = clientManager.ddb();
-        DynamoDBMapper mapper = new DynamoDBMapper(ddb);
+		AmazonDynamoDBClient ddb = clientManager.ddb();
+		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
-        try {
-            UserTwitterDetails user = mapper.load(UserTwitterDetails.class, userId);
+		try {
+			UserTwitterDetails user = mapper.load(UserTwitterDetails.class, userId);
 
-            return user;
+			return user;
+		} catch (AmazonServiceException ex) {
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
 
-        } catch (AmazonServiceException ex) {
-            clientManager.wipeCredentialsOnAuthError(ex);
-        }
+		return null;
+	}
 
-        return null;
-    }
+	/*
+	 * Updates one attribute/value pair for the specified user.
+	 */
+	public static void updateUserPreference(UserTwitterDetails updateUser) {
 
-    /*
-     * Updates one attribute/value pair for the specified user.
-     */
-    public static void updateUserPreference(UserTwitterDetails updateUser) {
+		AmazonDynamoDBClient ddb = clientManager.ddb();
+		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
-        AmazonDynamoDBClient ddb = clientManager.ddb();
-        DynamoDBMapper mapper = new DynamoDBMapper(ddb);
+		try {
+			mapper.save(updateUser);
+		} catch (AmazonServiceException ex) {
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
+	}
 
-        try {
-            mapper.save(updateUser);
+	/*
+	 * Deletes the specified user and all of its attribute/value pairs.
+	 */
+	public static void deleteUser(UserTwitterDetails deleteUser) {
 
-        } catch (AmazonServiceException ex) {
-            clientManager.wipeCredentialsOnAuthError(ex);
-        }
-    }
+		AmazonDynamoDBClient ddb = clientManager.ddb();
+		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
-    /*
-     * Deletes the specified user and all of its attribute/value pairs.
-     */
-    public static void deleteUser(UserTwitterDetails deleteUser) {
-
-        AmazonDynamoDBClient ddb = clientManager.ddb();
-        DynamoDBMapper mapper = new DynamoDBMapper(ddb);
-
-        try {
-            mapper.delete(deleteUser);
-
-        } catch (AmazonServiceException ex) {
-            clientManager.wipeCredentialsOnAuthError(ex);
-        }
-    }
+		try {
+			mapper.delete(deleteUser);
+		} catch (AmazonServiceException ex) {
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
+	}
 }

@@ -28,54 +28,54 @@ import java.util.ArrayList;
  */
 public class GridViewImageAdapter extends BaseAdapter {
 
-    private Context context;
-    private ArrayList<String> image_grid;
-    private GridViewImageInterface callback;
+	private Context context;
+	private ArrayList<String> image_grid;
+	private GridViewImageInterface callback;
 
-    public GridViewImageAdapter(Context context, ArrayList<String> images, GridViewImageInterface callback) {
-        this.context = context;
-        this.image_grid = images;
-        this.callback = callback;
-    }
+	public GridViewImageAdapter(Context context, ArrayList<String> images, GridViewImageInterface callback) {
+		this.context = context;
+		this.image_grid = images;
+		this.callback = callback;
+	}
 
-    @Override
-    public int getCount() {
-        return this.image_grid.size();
-    }
+	@Override
+	public int getCount() {
+		return this.image_grid.size();
+	}
 
-    @Override
-    public String getItem(int position) {
-        return this.image_grid.get(position);
-    }
+	@Override
+	public String getItem(int position) {
+		return this.image_grid.get(position);
+	}
 
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
+	@Override
+	public long getItemId(int position) {
+		return position;
+	}
 
-    @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        View view = convertView;
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (view == null) {
-            view = inflater.inflate(R.layout.grid_cell, null);
-        }
+	@Override
+	public View getView(final int position, View convertView, ViewGroup parent) {
+		View view = convertView;
+		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		if (view == null) {
+			view = inflater.inflate(R.layout.grid_cell, null);
+		}
 
-        SmartImageView imageView = (SmartImageView) view.findViewById(R.id.image_element);
-        CheckBox imageCheck = (CheckBox) view.findViewById(R.id.image_check);
+		SmartImageView imageView = (SmartImageView) view.findViewById(R.id.image_element);
+		CheckBox imageCheck = (CheckBox) view.findViewById(R.id.image_check);
 
-        final String imageUrl = image_grid.get(position);
-        imageView.setImageUrl(imageUrl);
+		final String imageUrl = image_grid.get(position);
+		imageView.setImageUrl(imageUrl);
 
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (callback != null) {
-                    callback.onClickedImage(v, position);
-                }
-            }
-        });
+		imageView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (callback != null) {
+					callback.onClickedImage(v, position);
+				}
+			}
+		});
 
-        return view;
-    }
+		return view;
+	}
 }

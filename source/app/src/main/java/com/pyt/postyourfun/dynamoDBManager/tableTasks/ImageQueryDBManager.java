@@ -26,44 +26,42 @@ import java.util.Map;
  * Created by Simon on 7/14/2015.
  */
 public class ImageQueryDBManager extends DynamoDBManager {
-    private static String TAG = "ImageQueryDBManager";
+	private static String TAG = "ImageQueryDBManager";
 
-    public static ImageQueryMapper getImage(String device_id, String display_id){
+	public static ImageQueryMapper getImage(String device_id, String display_id) {
 
-        AmazonDynamoDBClient ddb = clientManager.ddb();
-        DynamoDBMapper mapper = new DynamoDBMapper(ddb);
+		AmazonDynamoDBClient ddb = clientManager.ddb();
+		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
-        try {
-            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+		try {
+			DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
 
-            Map<String, Condition> scanFilter = new HashMap<String, Condition>();
+			Map<String, Condition> scanFilter = new HashMap<String, Condition>();
 
-            // Condition1: DeviceId
-            Condition scanCondition = new Condition()
-                    .withComparisonOperator(ComparisonOperator.EQ.toString())
-                    .withAttributeValueList(new AttributeValue().withS(device_id));
-            scanFilter.put("DeviceId", scanCondition);
-            scanExpression.setScanFilter(scanFilter);
+			// Condition1: DeviceId
+			Condition scanCondition =
+					new Condition().withComparisonOperator(ComparisonOperator.EQ.toString()).withAttributeValueList(new AttributeValue().withS(device_id));
+			scanFilter.put("DeviceId", scanCondition);
+			scanExpression.setScanFilter(scanFilter);
 
-            // Condition2: DisplayId
-            Condition scanCondition1 = new Condition()
-                    .withComparisonOperator(ComparisonOperator.EQ.toString())
-                    .withAttributeValueList(new AttributeValue().withS(display_id));
-            scanFilter.put("DisplayId", scanCondition1);
+			// Condition2: DisplayId
+			Condition scanCondition1 =
+					new Condition().withComparisonOperator(ComparisonOperator.EQ.toString()).withAttributeValueList(new AttributeValue().withS(display_id));
+			scanFilter.put("DisplayId", scanCondition1);
 
-            scanExpression.setScanFilter(scanFilter);
+			scanExpression.setScanFilter(scanFilter);
 
-            List<ImageQueryMapper> results = mapper.scan(ImageQueryMapper.class, scanExpression);
-            if (results.size() > 0){
-                ImageQueryMapper imageQueryMapper = results.get(0);
-                Log.d("Imagescan result:", imageQueryMapper.getImage_id());
-                return imageQueryMapper;
-            }else{
-                return null;
-            }
-        } catch (AmazonServiceException ex) {
-            clientManager.wipeCredentialsOnAuthError(ex);
-        }
-        return null;
-    }
+			List<ImageQueryMapper> results = mapper.scan(ImageQueryMapper.class, scanExpression);
+			if (results.size() > 0) {
+				ImageQueryMapper imageQueryMapper = results.get(0);
+				Log.d("Imagescan result:", imageQueryMapper.getImage_id());
+				return imageQueryMapper;
+			} else {
+				return null;
+			}
+		} catch (AmazonServiceException ex) {
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
+		return null;
+	}
 }

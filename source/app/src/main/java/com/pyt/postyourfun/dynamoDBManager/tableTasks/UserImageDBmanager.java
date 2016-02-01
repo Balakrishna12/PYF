@@ -18,52 +18,50 @@ import java.util.Map;
  * Created by Simon on 7/24/2015.
  */
 public class UserImageDBmanager extends DynamoDBManager {
-    private static String TAG = "UserImageDBManager";
+	private static String TAG = "UserImageDBManager";
 
-    public static void insertUserImage(String transactionId, String userId, String imageId, String imageUrl, String datetime){
-        AmazonDynamoDBClient ddb = clientManager.ddb();
-        DynamoDBMapper mapper = new DynamoDBMapper(ddb);
+	public static void insertUserImage(String transactionId, String userId, String imageId, String imageUrl, String datetime) {
+		AmazonDynamoDBClient ddb = clientManager.ddb();
+		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
-        try{
-            UserImageMapper userImageMapper = new UserImageMapper();
-            userImageMapper.setTransactionId(transactionId);
-            userImageMapper.setImageUrl(imageUrl);
-            userImageMapper.setImageId(imageId);
-            userImageMapper.setDate_time(datetime);
-            userImageMapper.setUserId(userId);
-            userImageMapper.setOwned(true);
+		try {
+			UserImageMapper userImageMapper = new UserImageMapper();
+			userImageMapper.setTransactionId(transactionId);
+			userImageMapper.setImageUrl(imageUrl);
+			userImageMapper.setImageId(imageId);
+			userImageMapper.setDate_time(datetime);
+			userImageMapper.setUserId(userId);
+			userImageMapper.setOwned(true);
 
-            mapper.save(userImageMapper);
-        }catch (AmazonServiceException e){
-            clientManager.wipeCredentialsOnAuthError(e);
-        }
-    }
+			mapper.save(userImageMapper);
+		} catch (AmazonServiceException e) {
+			clientManager.wipeCredentialsOnAuthError(e);
+		}
+	}
 
-    public static List<UserImageMapper> getUserImages(String userId){
-        AmazonDynamoDBClient ddb = clientManager.ddb();
-        DynamoDBMapper mapper = new DynamoDBMapper(ddb);
+	public static List<UserImageMapper> getUserImages(String userId) {
+		AmazonDynamoDBClient ddb = clientManager.ddb();
+		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
-        try{
-            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
-            Map<String, Condition> scanFilter = new HashMap<>();
+		try {
+			DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+			Map<String, Condition> scanFilter = new HashMap<>();
 
-            Condition scanCondition = new Condition()
-                    .withComparisonOperator(ComparisonOperator.EQ.toString())
-                    .withAttributeValueList(new AttributeValue().withS(userId));
+			Condition scanCondition =
+					new Condition().withComparisonOperator(ComparisonOperator.EQ.toString()).withAttributeValueList(new AttributeValue().withS(userId));
 
-            scanFilter.put("UserId", scanCondition);
-            scanExpression.setScanFilter(scanFilter);
+			scanFilter.put("UserId", scanCondition);
+			scanExpression.setScanFilter(scanFilter);
 
-            List<UserImageMapper> result = mapper.scan(UserImageMapper.class,scanExpression);
-            if (result.size() > 0){
-                return result;
-            }else {
-                return null;
-            }
-
-        } catch (AmazonServiceException e){
-            clientManager.wipeCredentialsOnAuthError(e);
-        }
-        return null;
-    }
+			List<UserImageMapper> result = mapper.scan(UserImageMapper.class, scanExpression);
+			if (result.size() > 0) {
+				return result;
+			} else {
+				return null;
+			}
+		} catch (AmazonServiceException e) {
+			clientManager.wipeCredentialsOnAuthError(e);
+		}
+		return null;
+	}
 }

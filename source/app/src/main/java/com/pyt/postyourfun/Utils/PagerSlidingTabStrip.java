@@ -49,10 +49,7 @@ public class PagerSlidingTabStrip extends LinearLayout {
 	}
 
 	// @formatter:off
-	private static final int[] ATTRS = new int[] {
-		android.R.attr.textSize,
-		android.R.attr.textColor
-    };
+	private static final int[] ATTRS = new int[]{android.R.attr.textSize, android.R.attr.textColor};
 	// @formatter:on
 
 	private LinearLayout.LayoutParams defaultTabLayoutParams;
@@ -197,7 +194,6 @@ public class PagerSlidingTabStrip extends LinearLayout {
 			} else {
 				addTextTab(i, pager.getAdapter().getPageTitle(i).toString());
 			}
-
 		}
 
 		updateTabStyles();
@@ -219,13 +215,12 @@ public class PagerSlidingTabStrip extends LinearLayout {
 				scrollToChild(currentPosition, 0);
 			}
 		});
-
 	}
 
 	private void addTextTab(final int position, String title) {
 
 		TextView tab = new TextView(getContext());
-        CustomFont.setCustomFont(getContext(), tab, CustomFont.OPENSANS_BOLD);
+		CustomFont.setCustomFont(getContext(), tab, CustomFont.OPENSANS_BOLD);
 		tab.setText(title);
 		tab.setGravity(Gravity.CENTER);
 		tab.setSingleLine();
@@ -239,7 +234,6 @@ public class PagerSlidingTabStrip extends LinearLayout {
 		tab.setImageResource(resId);
 
 		addTab(position, tab);
-
 	}
 
 	private void addTab(final int position, View tab) {
@@ -269,7 +263,7 @@ public class PagerSlidingTabStrip extends LinearLayout {
 				tab.setTextSize(TypedValue.COMPLEX_UNIT_PX, tabTextSize);
 //				tab.setTypeface(tabTypeface, tabTypefaceStyle);
 				tab.setTextColor(tabTextColor);
-                CustomFont.setCustomFont(getContext(), tab, CustomFont.OPENSANS_REGULAR);
+				CustomFont.setCustomFont(getContext(), tab, CustomFont.OPENSANS_REGULAR);
 
 				// setAllCaps() is only available from API 14, so the upper case is made manually if we are on a
 				// pre-ICS-build
@@ -282,12 +276,11 @@ public class PagerSlidingTabStrip extends LinearLayout {
 				}
 			}
 		}
-
 	}
 
 	private void scrollToChild(int position, int offset) {
 
-        return;
+		return;
 //
 //		if (tabCount == 0) {
 //			return;
@@ -386,7 +379,6 @@ public class PagerSlidingTabStrip extends LinearLayout {
 				delegatePageListener.onPageSelected(position);
 			}
 		}
-
 	}
 
 	public void setIndicatorColor(int indicatorColor) {
@@ -576,5 +568,4 @@ public class PagerSlidingTabStrip extends LinearLayout {
 			}
 		};
 	}
-
 }

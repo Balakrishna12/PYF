@@ -26,70 +26,61 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.pyt.postyourfun.constants.Constants;
 
 /**
- * This class is used to get clients to the various AWS services. Before
- * accessing a client the credentials should be checked to ensure validity.
+ * This class is used to get clients to the various AWS services. Before accessing a client the credentials should be checked to ensure validity.
  */
 public class AmazonClientManager {
 
-    private static final String LOG_TAG = "AmazonClientManager";
+	private static final String LOG_TAG = "AmazonClientManager";
 
-    private AmazonDynamoDBClient ddb = null;
-    private Context context;
+	private AmazonDynamoDBClient ddb = null;
+	private Context context;
 
-    public AmazonClientManager(Context context) {
-        this.context = context;
-    }
+	public AmazonClientManager(Context context) {
+		this.context = context;
+	}
 
-    public AmazonDynamoDBClient ddb() {
-        validateCredentials();
-        return ddb;
-    }
+	public AmazonDynamoDBClient ddb() {
+		validateCredentials();
+		return ddb;
+	}
 
-    public void validateCredentials() {
+	public void validateCredentials() {
 
-        if (ddb == null) {
-            initClients();
-        }
-    }
+		if (ddb == null) {
+			initClients();
+		}
+	}
 
-    private void initClients() {
-        CognitoCachingCredentialsProvider credentials = new CognitoCachingCredentialsProvider(
-                context,
-                Constants.ACCOUNT_ID,
-                Constants.IDENTITY_POOL_ID,
-                Constants.UNAUTH_ROLE_ARN,
-                null,
-                Regions.EU_WEST_1);
+	private void initClients() {
+		CognitoCachingCredentialsProvider credentials = new CognitoCachingCredentialsProvider(context,
+		                                                                                      Constants.ACCOUNT_ID,
+		                                                                                      Constants.IDENTITY_POOL_ID,
+		                                                                                      Constants.UNAUTH_ROLE_ARN,
+		                                                                                      null,
+		                                                                                      Regions.EU_WEST_1);
 
-        ddb = new AmazonDynamoDBClient(credentials);
-        ddb.setRegion(Region.getRegion(Regions.EU_WEST_1));
-    }
+		ddb = new AmazonDynamoDBClient(credentials);
+		ddb.setRegion(Region.getRegion(Regions.EU_WEST_1));
+	}
 
-    public boolean wipeCredentialsOnAuthError(AmazonServiceException ex) {
-        Log.e(LOG_TAG, "Error, wipeCredentialsOnAuthError called" + ex);
-        if (
-        // STS
-        // http://docs.amazonwebservices.com/STS/latest/APIReference/CommonErrors.html
-        ex.getErrorCode().equals("IncompleteSignature")
-                || ex.getErrorCode().equals("InternalFailure")
-                || ex.getErrorCode().equals("InvalidClientTokenId")
-                || ex.getErrorCode().equals("OptInRequired")
-                || ex.getErrorCode().equals("RequestExpired")
-                || ex.getErrorCode().equals("ServiceUnavailable")
+	public boolean wipeCredentialsOnAuthError(AmazonServiceException ex) {
+		Log.e(LOG_TAG, "Error, wipeCredentialsOnAuthError called" + ex);
+		if (
+			// STS
+			// http://docs.amazonwebservices.com/STS/latest/APIReference/CommonErrors.html
+				ex.getErrorCode().equals("IncompleteSignature") || ex.getErrorCode().equals("InternalFailure") ||
+						ex.getErrorCode().equals("InvalidClientTokenId") || ex.getErrorCode().equals("OptInRequired") ||
+						ex.getErrorCode().equals("RequestExpired") || ex.getErrorCode().equals("ServiceUnavailable")
 
-                // DynamoDB
-                // http://docs.amazonwebservices.com/amazondynamodb/latest/developerguide/ErrorHandling.html#APIErrorTypes
-                || ex.getErrorCode().equals("AccessDeniedException")
-                || ex.getErrorCode().equals("IncompleteSignatureException")
-                || ex.getErrorCode().equals(
-                        "MissingAuthenticationTokenException")
-                || ex.getErrorCode().equals("ValidationException")
-                || ex.getErrorCode().equals("InternalFailure")
-                || ex.getErrorCode().equals("InternalServ4erError")) {
+						// DynamoDB
+						// http://docs.amazonwebservices.com/amazondynamodb/latest/developerguide/ErrorHandling.html#APIErrorTypes
+						|| ex.getErrorCode().equals("AccessDeniedException") || ex.getErrorCode().equals("IncompleteSignatureException") ||
+						ex.getErrorCode().equals("MissingAuthenticationTokenException") || ex.getErrorCode().equals("ValidationException") ||
+						ex.getErrorCode().equals("InternalFailure") || ex.getErrorCode().equals("InternalServ4erError")) {
 
-            return true;
-        }
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 }

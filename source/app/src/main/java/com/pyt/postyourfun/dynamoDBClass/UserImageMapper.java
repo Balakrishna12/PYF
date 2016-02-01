@@ -11,41 +11,46 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 
 @DynamoDBTable(tableName = "UserImages")
 public class UserImageMapper {
-    private String transactionId;
-    private String userId;
-    private String dateTime;
-    private String imageId;
-    private String imageUrl;
-    private boolean owned;
+	private String transactionId;
+	private String userId;
+	private String dateTime;
+	private String imageId;
+	private String imageUrl;
+	private boolean owned;
 
-    @DynamoDBHashKey(attributeName = "TransactionId")
-    public String getTransactionId(){return transactionId;}
+	@DynamoDBHashKey(attributeName = "TransactionId")
+	public String getTransactionId() {return transactionId;}
 
-    public void setTransactionId(String tran_id){
-        transactionId = tran_id;
-    }
-    @DynamoDBRangeKey(attributeName = "UserId")
-    public String getUserId(){return userId;}
-    public void setUserId(String user_id){
-        userId = user_id;
-    }
+	public void setTransactionId(String tran_id) {
+		transactionId = tran_id;
+	}
 
-    @DynamoDBAttribute(attributeName = "ImageId")
-    public String getImageId(){return imageId;}
-    public void setImageId(String image_id){
-        imageId = image_id;
-    }
+	@DynamoDBRangeKey(attributeName = "UserId")
+	public String getUserId() {return userId;}
 
-    @DynamoDBAttribute(attributeName = "ImageUrl")
-    public String getImageUrl(){return imageUrl;}
-    public void setImageUrl(String image_url){imageUrl = image_url;}
+	public void setUserId(String user_id) {
+		userId = user_id;
+	}
 
-    @DynamoDBAttribute(attributeName = "DateTime")
-    public String getDateTime(){return dateTime;}
-    public void setDate_time(String date_time){dateTime = date_time;}
+	@DynamoDBAttribute(attributeName = "ImageId")
+	public String getImageId() {return imageId;}
 
-    @DynamoDBAttribute(attributeName = "Owned")
-    public boolean isOwned(){return owned;}
-    public void setOwned(boolean flag){owned = flag;}
+	public void setImageId(String image_id) {
+		imageId = image_id;
+	}
 
+	@DynamoDBAttribute(attributeName = "ImageUrl")
+	public String getImageUrl() {return imageUrl;}
+
+	public void setImageUrl(String image_url) {imageUrl = image_url;}
+
+	@DynamoDBAttribute(attributeName = "DateTime")
+	public String getDateTime() {return dateTime;}
+
+	public void setDate_time(String date_time) {dateTime = date_time;}
+
+	@DynamoDBAttribute(attributeName = "Owned")
+	public boolean isOwned() {return owned;}
+
+	public void setOwned(boolean flag) {owned = flag;}
 }

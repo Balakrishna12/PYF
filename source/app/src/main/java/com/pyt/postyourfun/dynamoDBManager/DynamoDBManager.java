@@ -16,95 +16,87 @@ import com.amazonaws.services.dynamodbv2.model.KeyType;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
 
-
 public class DynamoDBManager {
-    private static final String TAG = "DynamoDBManager";
-    protected Context _context = null;
-    public static AmazonClientManager clientManager = null;
+	private static final String TAG = "DynamoDBManager";
+	protected Context _context = null;
+	public static AmazonClientManager clientManager = null;
 
-    private static DynamoDBManager _sharedInstance = null;
-    public static DynamoDBManager sharedInstance(Context context) {
-        if ( _sharedInstance == null ) {
-            _sharedInstance = new DynamoDBManager();
-            _sharedInstance.init(context);
-        }
-        return _sharedInstance;
-    }
+	private static DynamoDBManager _sharedInstance = null;
 
-    private void init( Context context ) {
-        _context = context;
-        clientManager = new AmazonClientManager(context);
-    }
+	public static DynamoDBManager sharedInstance(Context context) {
+		if (_sharedInstance == null) {
+			_sharedInstance = new DynamoDBManager();
+			_sharedInstance.init(context);
+		}
+		return _sharedInstance;
+	}
 
-    /*
-     * Creates a table with the following attributes: Table name: testTableName
-     * Hash key: userNo type N Read Capacity Units: 10 Write Capacity Units: 5
-     */
-    public static void createTable(String tableName, String attributeName) {
+	private void init(Context context) {
+		_context = context;
+		clientManager = new AmazonClientManager(context);
+	}
 
-        Log.d(TAG, "Create table called");
+	/*
+	 * Creates a table with the following attributes: Table name: testTableName
+	 * Hash key: userNo type N Read Capacity Units: 10 Write Capacity Units: 5
+	 */
+	public static void createTable(String tableName, String attributeName) {
 
-        AmazonDynamoDBClient ddb = clientManager.ddb();
+		Log.d(TAG, "Create table called");
 
-        KeySchemaElement kse = new KeySchemaElement().withAttributeName(attributeName).withKeyType(KeyType.HASH);
-        AttributeDefinition ad = new AttributeDefinition().withAttributeName(
-                attributeName).withAttributeType(ScalarAttributeType.N);
-        ProvisionedThroughput pt = new ProvisionedThroughput()
-                .withReadCapacityUnits(10l).withWriteCapacityUnits(5l);
+		AmazonDynamoDBClient ddb = clientManager.ddb();
 
-        CreateTableRequest request = new CreateTableRequest()
-                .withTableName(tableName)
-                .withKeySchema(kse).withAttributeDefinitions(ad)
-                .withProvisionedThroughput(pt);
+		KeySchemaElement kse = new KeySchemaElement().withAttributeName(attributeName).withKeyType(KeyType.HASH);
+		AttributeDefinition ad = new AttributeDefinition().withAttributeName(attributeName).withAttributeType(ScalarAttributeType.N);
+		ProvisionedThroughput pt = new ProvisionedThroughput().withReadCapacityUnits(10l).withWriteCapacityUnits(5l);
 
-        try {
-            Log.d(TAG, "Sending Create table request");
-            ddb.createTable(request);
-            Log.d(TAG, "Create request response successfully recieved");
-        } catch (AmazonServiceException ex) {
-            Log.e(TAG, "Error sending create table request", ex);
-            clientManager.wipeCredentialsOnAuthError(ex);
-        }
-    }
+		CreateTableRequest request =
+				new CreateTableRequest().withTableName(tableName).withKeySchema(kse).withAttributeDefinitions(ad).withProvisionedThroughput(pt);
 
-    /*
-     * Retrieves the table description and returns the table status as a string.
-     */
-    public String getTableStatus(String tableName) {
+		try {
+			Log.d(TAG, "Sending Create table request");
+			ddb.createTable(request);
+			Log.d(TAG, "Create request response successfully recieved");
+		} catch (AmazonServiceException ex) {
+			Log.e(TAG, "Error sending create table request", ex);
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
+	}
 
-        try {
-            AmazonDynamoDBClient ddb = clientManager.ddb();
+	/*
+	 * Retrieves the table description and returns the table status as a string.
+	 */
+	public String getTableStatus(String tableName) {
 
-            DescribeTableRequest request = new DescribeTableRequest().withTableName(tableName);
-            DescribeTableResult result = ddb.describeTable(request);
+		try {
+			AmazonDynamoDBClient ddb = clientManager.ddb();
 
-            String status = result.getTable().getTableStatus();
-            return status == null ? "" : status;
+			DescribeTableRequest request = new DescribeTableRequest().withTableName(tableName);
+			DescribeTableResult result = ddb.describeTable(request);
 
-        } catch (ResourceNotFoundException e) {
-        } catch (AmazonServiceException ex) {
-            clientManager.wipeCredentialsOnAuthError(ex);
-        }
+			String status = result.getTable().getTableStatus();
+			return status == null ? "" : status;
+		} catch (ResourceNotFoundException e) {
+		} catch (AmazonServiceException ex) {
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
 
-        return "";
-    }
+		return "";
+	}
 
-    /*
-     * Deletes the test table and all of its users and their attribute/value
-     * pairs.
-     */
-    public static void cleanUp(String tableName) {
+	/*
+	 * Deletes the test table and all of its users and their attribute/value
+	 * pairs.
+	 */
+	public static void cleanUp(String tableName) {
 
-        AmazonDynamoDBClient ddb = clientManager
-                .ddb();
+		AmazonDynamoDBClient ddb = clientManager.ddb();
 
-        DeleteTableRequest request = new DeleteTableRequest()
-                .withTableName(tableName);
-        try {
-            ddb.deleteTable(request);
-
-        } catch (AmazonServiceException ex) {
-            clientManager.wipeCredentialsOnAuthError(ex);
-        }
-    }
+		DeleteTableRequest request = new DeleteTableRequest().withTableName(tableName);
+		try {
+			ddb.deleteTable(request);
+		} catch (AmazonServiceException ex) {
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
+	}
 }

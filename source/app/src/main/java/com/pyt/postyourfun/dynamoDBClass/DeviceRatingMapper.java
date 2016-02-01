@@ -11,73 +11,74 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 @DynamoDBTable(tableName = "DeviceRating")
 public class DeviceRatingMapper {
 
-    private String ratingId;
-    private String userId;
-    private String deviceId;
-    private String speed;
-    private String g_force;
-    private String adrenalineKick;
-    private String comment;
+	private String ratingId;
+	private String userId;
+	private String deviceId;
+	private String speed;
+	private String g_force;
+	private String adrenalineKick;
+	private String comment;
 
-    @DynamoDBHashKey(attributeName = "RatingId")
-    public String getRatingId() {
-        return ratingId;
-    }
+	@DynamoDBHashKey(attributeName = "RatingId")
+	public String getRatingId() {
+		return ratingId;
+	}
 
-    public void setRatingId(String ratingId) {
-        this.ratingId = ratingId;
-    }
+	public void setRatingId(String ratingId) {
+		this.ratingId = ratingId;
+	}
 
-    @DynamoDBRangeKey(attributeName = "UserId")
-    public String getUserId() {
-        return userId;
-    }
+	@DynamoDBRangeKey(attributeName = "UserId")
+	public String getUserId() {
+		return userId;
+	}
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
 
-    @DynamoDBAttribute(attributeName = "DeviceId")
-    public String getDeviceId() {
-        return deviceId;
-    }
+	@DynamoDBAttribute(attributeName = "DeviceId")
+	public String getDeviceId() {
+		return deviceId;
+	}
 
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
+	}
 
-    @DynamoDBAttribute(attributeName = "Speed")
-    public String getSpeed() {
-        return speed;
-    }
+	@DynamoDBAttribute(attributeName = "Speed")
+	public String getSpeed() {
+		return speed;
+	}
 
-    public void setSpeed(String speed) {
-        this.speed = speed;
-    }
+	public void setSpeed(String speed) {
+		this.speed = speed;
+	}
 
-    @DynamoDBAttribute(attributeName = "G_force")
-    public String getG_force(){
-        return g_force;
-    }
-    public void setG_force(String g_force){
-        this.g_force = g_force;
-    }
+	@DynamoDBAttribute(attributeName = "G_force")
+	public String getG_force() {
+		return g_force;
+	}
 
-    @DynamoDBAttribute(attributeName = "AdrenalineKick")
-    public String getAdrenalineKick() {
-        return adrenalineKick;
-    }
+	public void setG_force(String g_force) {
+		this.g_force = g_force;
+	}
 
-    public void setAdrenalineKick(String adrenalineKick) {
-        this.adrenalineKick = adrenalineKick;
-    }
+	@DynamoDBAttribute(attributeName = "AdrenalineKick")
+	public String getAdrenalineKick() {
+		return adrenalineKick;
+	}
 
-    @DynamoDBAttribute(attributeName = "Comment")
-    public String getComment() {
-        return comment;
-    }
+	public void setAdrenalineKick(String adrenalineKick) {
+		this.adrenalineKick = adrenalineKick;
+	}
 
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
+	@DynamoDBAttribute(attributeName = "Comment")
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
 }

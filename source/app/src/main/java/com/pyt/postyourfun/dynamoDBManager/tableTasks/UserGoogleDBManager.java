@@ -13,114 +13,109 @@ import com.pyt.postyourfun.dynamoDBManager.DynamoDBManager;
 
 import java.util.ArrayList;
 
-
 public class UserGoogleDBManager extends DynamoDBManager {
-    private static String TAG = "UserFacebookDBManager";
-    private String userId;
-    private String googleId;
-    private String email;
-    private String country;
-    /*
-     * Inserts users
-     */
-    public static void insertUsers(String userId, String googleId, String email, String country) {
-        AmazonDynamoDBClient ddb = clientManager.ddb();
-        DynamoDBMapper mapper = new DynamoDBMapper(ddb);
+	private static String TAG = "UserFacebookDBManager";
+	private String userId;
+	private String googleId;
+	private String email;
+	private String country;
 
-        try {
-            for (int i = 1; i <= 10; i++) {
-                UserGoogleDetails userFacebook = new UserGoogleDetails();
+	/*
+	 * Inserts users
+	 */
+	public static void insertUsers(String userId, String googleId, String email, String country) {
+		AmazonDynamoDBClient ddb = clientManager.ddb();
+		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
-                userFacebook.setUserId(userId);
-                userFacebook.setGoogleId(googleId);
-                userFacebook.setEmail(email);
-                userFacebook.setCountry(country);
+		try {
+			for (int i = 1; i <= 10; i++) {
+				UserGoogleDetails userFacebook = new UserGoogleDetails();
 
-                Log.d(TAG, "Inserting users");
-                mapper.save(userFacebook);
-                Log.d(TAG, "Users inserted");
-            }
-        } catch (AmazonServiceException ex) {
-            Log.e(TAG, "Error inserting users");
-            clientManager.wipeCredentialsOnAuthError(ex);
-        }
-    }
+				userFacebook.setUserId(userId);
+				userFacebook.setGoogleId(googleId);
+				userFacebook.setEmail(email);
+				userFacebook.setCountry(country);
 
-    /*
-     * Scans the table and returns the list of users.
-     */
-    public static ArrayList<UserGoogleDetails> getUserGoolgeList() {
+				Log.d(TAG, "Inserting users");
+				mapper.save(userFacebook);
+				Log.d(TAG, "Users inserted");
+			}
+		} catch (AmazonServiceException ex) {
+			Log.e(TAG, "Error inserting users");
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
+	}
 
-        AmazonDynamoDBClient ddb = clientManager.ddb();
-        DynamoDBMapper mapper = new DynamoDBMapper(ddb);
+	/*
+	 * Scans the table and returns the list of users.
+	 */
+	public static ArrayList<UserGoogleDetails> getUserGoolgeList() {
 
-        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
-        try {
-            PaginatedScanList<UserGoogleDetails> result = mapper.scan(
-                    UserGoogleDetails.class, scanExpression);
+		AmazonDynamoDBClient ddb = clientManager.ddb();
+		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
-            ArrayList<UserGoogleDetails> resultList = new ArrayList<UserGoogleDetails>();
-            for (UserGoogleDetails up : result) {
-                resultList.add(up);
-            }
-            return resultList;
+		DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+		try {
+			PaginatedScanList<UserGoogleDetails> result = mapper.scan(UserGoogleDetails.class, scanExpression);
 
-        } catch (AmazonServiceException ex) {
-            clientManager.wipeCredentialsOnAuthError(ex);
-        }
+			ArrayList<UserGoogleDetails> resultList = new ArrayList<UserGoogleDetails>();
+			for (UserGoogleDetails up : result) {
+				resultList.add(up);
+			}
+			return resultList;
+		} catch (AmazonServiceException ex) {
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    /*
-     * Retrieves all of the attribute/value pairs for the specified user.
-     */
-    public static UserGoogleDetails getUserPreference(int userId) {
+	/*
+	 * Retrieves all of the attribute/value pairs for the specified user.
+	 */
+	public static UserGoogleDetails getUserPreference(int userId) {
 
-        AmazonDynamoDBClient ddb = clientManager.ddb();
-        DynamoDBMapper mapper = new DynamoDBMapper(ddb);
+		AmazonDynamoDBClient ddb = clientManager.ddb();
+		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
-        try {
-            UserGoogleDetails user = mapper.load(UserGoogleDetails.class, userId);
+		try {
+			UserGoogleDetails user = mapper.load(UserGoogleDetails.class, userId);
 
-            return user;
+			return user;
+		} catch (AmazonServiceException ex) {
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
 
-        } catch (AmazonServiceException ex) {
-            clientManager.wipeCredentialsOnAuthError(ex);
-        }
+		return null;
+	}
 
-        return null;
-    }
+	/*
+	 * Updates one attribute/value pair for the specified user.
+	 */
+	public static void updateUserPreference(UserGoogleDetails updateUser) {
 
-    /*
-     * Updates one attribute/value pair for the specified user.
-     */
-    public static void updateUserPreference(UserGoogleDetails updateUser) {
+		AmazonDynamoDBClient ddb = clientManager.ddb();
+		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
-        AmazonDynamoDBClient ddb = clientManager.ddb();
-        DynamoDBMapper mapper = new DynamoDBMapper(ddb);
+		try {
+			mapper.save(updateUser);
+		} catch (AmazonServiceException ex) {
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
+	}
 
-        try {
-            mapper.save(updateUser);
+	/*
+	 * Deletes the specified user and all of its attribute/value pairs.
+	 */
+	public static void deleteUser(UserGoogleDetails deleteUser) {
 
-        } catch (AmazonServiceException ex) {
-            clientManager.wipeCredentialsOnAuthError(ex);
-        }
-    }
+		AmazonDynamoDBClient ddb = clientManager.ddb();
+		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
-    /*
-     * Deletes the specified user and all of its attribute/value pairs.
-     */
-    public static void deleteUser(UserGoogleDetails deleteUser) {
-
-        AmazonDynamoDBClient ddb = clientManager.ddb();
-        DynamoDBMapper mapper = new DynamoDBMapper(ddb);
-
-        try {
-            mapper.delete(deleteUser);
-
-        } catch (AmazonServiceException ex) {
-            clientManager.wipeCredentialsOnAuthError(ex);
-        }
-    }
+		try {
+			mapper.delete(deleteUser);
+		} catch (AmazonServiceException ex) {
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
+	}
 }

@@ -11,26 +11,26 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 
 public class ContactImage implements SmartImage {
-    private long contactId;
+	private long contactId;
 
-    public ContactImage(long contactId) {
-        this.contactId = contactId;
-    }
+	public ContactImage(long contactId) {
+		this.contactId = contactId;
+	}
 
-    public Bitmap getBitmap(Context context) {
-        Bitmap bitmap = null;
-        ContentResolver contentResolver = context.getContentResolver();
+	public Bitmap getBitmap(Context context) {
+		Bitmap bitmap = null;
+		ContentResolver contentResolver = context.getContentResolver();
 
-        try {
-            Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contactId);
-            InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(contentResolver, uri);
-            if(input != null) {
-                bitmap = BitmapFactory.decodeStream(input);
-            }
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+		try {
+			Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contactId);
+			InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(contentResolver, uri);
+			if (input != null) {
+				bitmap = BitmapFactory.decodeStream(input);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-        return bitmap;
-    }
+		return bitmap;
+	}
 }

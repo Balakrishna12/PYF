@@ -9,43 +9,44 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
  */
 @DynamoDBTable(tableName = "Park")
 public class ParkMapper {
-    private String parkId;
-    private String name;
-    private String lattitude;
-    private String longitude;
+	private String parkId;
+	private String name;
+	private String lattitude;
+	private String longitude;
 
-    @DynamoDBHashKey(attributeName = "ParkId")
-    public String getParkId() {
-        return parkId;
-    }
+	@DynamoDBHashKey(attributeName = "ParkId")
+	public String getParkId() {
+		return parkId;
+	}
 
-    public void setParkId(String parkId) {
-        this.parkId = parkId;
-    }
+	public void setParkId(String parkId) {
+		this.parkId = parkId;
+	}
 
-    @DynamoDBAttribute(attributeName = "Name")
-    public String getName() {
-        return name;
-    }
+	@DynamoDBAttribute(attributeName = "Name")
+	public String getName() {
+		return name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    @DynamoDBAttribute(attributeName = "Lattitude")
-    public String getLattitude() {
-        return lattitude;
-    }
+	@DynamoDBAttribute(attributeName = "Lattitude")
+	public String getLattitude() {
+		return lattitude;
+	}
 
-    public void setLattitude(String lattitude) {
-        this.lattitude = lattitude;
-    }
+	public void setLattitude(String lattitude) {
+		this.lattitude = lattitude;
+	}
 
-    @DynamoDBAttribute(attributeName = "Longitude")
-    public void setLongitude(String longitude) {
-        this.longitude = longitude;
-    }
-    public String getLongitude() {
-        return longitude;
-    }
+	@DynamoDBAttribute(attributeName = "Longitude")
+	public void setLongitude(String longitude) {
+		this.longitude = longitude;
+	}
+
+	public String getLongitude() {
+		return longitude;
+	}
 }

@@ -16,40 +16,37 @@ import java.util.ArrayList;
  */
 public class RideDBManager extends DynamoDBManager {
 
-    private String TAG = "RideDBManager";
+	private String TAG = "RideDBManager";
 
-    public static DeviceMapper getRide(String ride_id){
-        AmazonDynamoDBClient ddb = clientManager.ddb();
-        DynamoDBMapper mapper = new DynamoDBMapper(ddb);
+	public static DeviceMapper getRide(String ride_id) {
+		AmazonDynamoDBClient ddb = clientManager.ddb();
+		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
-        try {
-            DeviceMapper user = mapper.load(DeviceMapper.class,ride_id);
-            return user;
+		try {
+			DeviceMapper user = mapper.load(DeviceMapper.class, ride_id);
+			return user;
+		} catch (AmazonServiceException ex) {
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
+		return null;
+	}
 
-        } catch (AmazonServiceException ex) {
-            clientManager.wipeCredentialsOnAuthError(ex);
-        }
-        return null;
-    }
+	public static ArrayList<DeviceMapper> get_all_rides() {
+		AmazonDynamoDBClient ddb = clientManager.ddb();
+		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
-    public static ArrayList<DeviceMapper> get_all_rides(){
-        AmazonDynamoDBClient ddb = clientManager.ddb();
-        DynamoDBMapper mapper = new DynamoDBMapper(ddb);
+		DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+		try {
+			PaginatedScanList<DeviceMapper> result = mapper.scan(DeviceMapper.class, scanExpression);
 
-        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
-        try {
-            PaginatedScanList<DeviceMapper> result = mapper.scan(
-                    DeviceMapper.class, scanExpression);
-
-            ArrayList<DeviceMapper> resultList = new ArrayList<DeviceMapper>();
-            for (DeviceMapper up : result) {
-                resultList.add(up);
-            }
-            return resultList;
-
-        } catch (AmazonServiceException ex) {
-            clientManager.wipeCredentialsOnAuthError(ex);
-        }
-        return null;
-    }
+			ArrayList<DeviceMapper> resultList = new ArrayList<DeviceMapper>();
+			for (DeviceMapper up : result) {
+				resultList.add(up);
+			}
+			return resultList;
+		} catch (AmazonServiceException ex) {
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
+		return null;
+	}
 }

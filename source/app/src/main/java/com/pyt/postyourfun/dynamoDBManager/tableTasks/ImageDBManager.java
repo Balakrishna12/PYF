@@ -28,33 +28,32 @@ import java.util.Map;
  */
 public class ImageDBManager extends DynamoDBManager {
 
-    private String TAG = "ImageDBManager";
+	private String TAG = "ImageDBManager";
 
-    public static ImageMapper getImage(String image_ID){
-        AmazonDynamoDBClient ddb = clientManager.ddb();
-        DynamoDBMapper mapper = new DynamoDBMapper(ddb);
+	public static ImageMapper getImage(String image_ID) {
+		AmazonDynamoDBClient ddb = clientManager.ddb();
+		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
-        try {
-            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
-            Map<String, Condition> scanFilter = new HashMap<String, Condition>();
+		try {
+			DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+			Map<String, Condition> scanFilter = new HashMap<String, Condition>();
 
-            // Condition1: DeviceId
-            Condition scanCondition = new Condition()
-                    .withComparisonOperator(ComparisonOperator.EQ.toString())
-                    .withAttributeValueList(new AttributeValue().withS(image_ID));
-            scanFilter.put("ImageId", scanCondition);
-            scanExpression.setScanFilter(scanFilter);
+			// Condition1: DeviceId
+			Condition scanCondition =
+					new Condition().withComparisonOperator(ComparisonOperator.EQ.toString()).withAttributeValueList(new AttributeValue().withS(image_ID));
+			scanFilter.put("ImageId", scanCondition);
+			scanExpression.setScanFilter(scanFilter);
 
-            List<ImageMapper> results = mapper.scan(ImageMapper.class, scanExpression);
-            if (results.size() > 0){
-                ImageMapper imageMapper = results.get(0);
-                return imageMapper;
-            }else {
-                return null;
-            }
-        } catch (AmazonServiceException ex) {
-            clientManager.wipeCredentialsOnAuthError(ex);
-        }
-        return null;
-    }
+			List<ImageMapper> results = mapper.scan(ImageMapper.class, scanExpression);
+			if (results.size() > 0) {
+				ImageMapper imageMapper = results.get(0);
+				return imageMapper;
+			} else {
+				return null;
+			}
+		} catch (AmazonServiceException ex) {
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
+		return null;
+	}
 }
