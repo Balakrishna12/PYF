@@ -1,18 +1,15 @@
 package com.pyt.postyourfun.activity;
 
+import android.content.Intent;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.TypedValue;
-import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 
 import com.pyt.postyourfun.Fragment.BuyImageFragment;
 import com.pyt.postyourfun.Fragment.RatingFragment;
@@ -42,8 +39,8 @@ public class MainActivity extends FragmentActivity {
         tabs.setTextColor(Color.parseColor("#ffffff"));
         tabs.setIndicatorColor(Color.parseColor("#aaffffff"));
         tabs.setTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, this.getResources().getDisplayMetrics()));
-        tabs.setTabPaddingLeftRight(126);
         tabs.setAllCaps(false);
+        tabs.setShouldExpand(true);
 
         pager = (ViewPager)this.findViewById(R.id.pager);
         adapter = new MyPagerAdapter(getSupportFragmentManager());

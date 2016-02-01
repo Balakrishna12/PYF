@@ -34,17 +34,15 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 
 import com.pyt.postyourfun.R;
 
 import java.util.Locale;
 
-public class PagerSlidingTabStrip extends HorizontalScrollView {
+public class PagerSlidingTabStrip extends LinearLayout {
 
 	public interface IconTabProvider {
 		public int getPageIconResId(int position);
@@ -85,7 +83,7 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 	private int indicatorHeight = 48;
 	private int underlineHeight = 2;
 	private int dividerPadding = 12;
-	private int tabPadding = 120;
+	private int tabPadding = 0;
 	private int dividerWidth = 1;
 
 	private int tabTextSize = 12;
@@ -110,7 +108,6 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 	public PagerSlidingTabStrip(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 
-		setFillViewport(true);
 		setWillNotDraw(false);
 
 		tabsContainer = new LinearLayout(context);
