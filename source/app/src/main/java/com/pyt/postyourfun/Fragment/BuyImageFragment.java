@@ -13,14 +13,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.pyt.postyourfun.Image.ImageDownloadMangerInterface;
-import com.pyt.postyourfun.Payment.PaymentController;
 import com.pyt.postyourfun.R;
-import com.pyt.postyourfun.Utils.Image.SmartImageView;
 import com.pyt.postyourfun.Utils.UserImageSQLiteHelper;
 import com.pyt.postyourfun.Utils.UsersImageModel;
 import com.pyt.postyourfun.activity.ShowImageActivity;
@@ -51,18 +47,14 @@ import static com.pyt.postyourfun.constants.PostYourFunApp.getCurrentTimDate;
 public class BuyImageFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener, ImageDownloadMangerInterface {
 
 	private Spinner park_spinner, ride_spinner;
-	private Button btn_get_image, btn_buy_image;
-	private EditText image_number;
-	private SmartImageView image_thumb;
-	private View hasDeviceView;
-	private Button notHasDeviceButton;
+	private Button getImagesButton;
 
 	private ParkMapper selectedPark = new ParkMapper();
 	private ArrayList<ParkMapper> all_parks = new ArrayList<>();
 
 	private DeviceMapper selected_ride = new DeviceMapper();
 	private ArrayList<DeviceMapper> all_rides = new ArrayList<>();
-	private ArrayList<DeviceMapper> selected_rides = new ArrayList<>();
+	private List<DeviceMapper> selected_rides = new ArrayList<>();
 
 	private String get_image_name;
 
@@ -100,16 +92,9 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
 
 		park_spinner = (Spinner) view.findViewById(R.id.park_spinner);
 		ride_spinner = (Spinner) view.findViewById(R.id.ride_spinner);
-		image_number = (EditText) view.findViewById(R.id.image_number);
-		image_thumb = (SmartImageView) view.findViewById(R.id.image_thumb);
-		btn_buy_image = (Button) view.findViewById(R.id.btn_buy_image);
-		btn_get_image = (Button) view.findViewById(R.id.btn_get_image);
-		hasDeviceView = view.findViewById(R.id.layout_have_device);
-		notHasDeviceButton = (Button) view.findViewById(R.id.do_not_have_device);
+		getImagesButton = (Button) view.findViewById(R.id.images);
 
-		btn_get_image.setOnClickListener(this);
-		btn_buy_image.setOnClickListener(this);
-		notHasDeviceButton.setOnClickListener(this);
+		getImagesButton.setOnClickListener(this);
 
 		park_spinner.setOnItemSelectedListener(this);
 		ride_spinner.setOnItemSelectedListener(this);
@@ -139,26 +124,37 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
 	public void onClick(View v) {
 		int view_id = v.getId();
 		switch (view_id) {
-		case R.id.btn_buy_image:
-			if (!full_image_url.equals("")) {
-				PaymentController.sharedInstance().buyImage(BuyImageFragment.this, 8.0f, "EUR", full_image_url, _interface);
-//                    ImageDownloadManager.getSharedInstance().downloadImage(full_image_url, getActivity(), _interface);
-			} else {
-				Toast.makeText(getActivity(), "Please get image first.", Toast.LENGTH_SHORT).show();
-			}
-			break;
-		case R.id.btn_get_image:
-			String device_id;
-			device_id = selected_rides.get(ride_spinner.getSelectedItemPosition()).getDeviceId();
-			if (image_number.getText().toString().equals("")) {
-				Toast.makeText(getActivity(), "Enter image number", Toast.LENGTH_SHORT).show();
-			} else {
-				new GetImageQuery().execute(device_id);
-			}
-			break;
-		case R.id.do_not_have_device:
+//		case R.id.btn_buy_image:
+//			if (!full_image_url.equals("")) {
+//				PaymentController.sharedInstance().buyImage(BuyImageFragment.this, 8.0f, "EUR", full_image_url, _interface);
+////                    ImageDownloadManager.getSharedInstance().downloadImage(full_image_url, getActivity(), _interface);
+//			} else {
+//				Toast.makeText(getActivity(), "Please get image first.", Toast.LENGTH_SHORT).show();
+//			}
+//			break;
+//		case R.id.btn_get_image:
+//			String device_id;
+//			device_id = selected_rides.get(ride_spinner.getSelectedItemPosition()).getDeviceId();
+//			if (image_number.getText().toString().equals("")) {
+//				Toast.makeText(getActivity(), "Enter image number", Toast.LENGTH_SHORT).show();
+//			} else {
+//				new GetImageQuery().execute(device_id);
+//			}
+//			break;
+		case R.id.images:
 			Intent intent = new Intent(getActivity(), ShowImageActivity.class);
-			intent.putExtra(ShowImageActivity.EXTRA_DEVICE_ID, selected_rides.get(ride_spinner.getSelectedItemPosition()).getDeviceId());
+			ArrayList<String> deviceIdList = new ArrayList<>();
+
+			DeviceMapper selectedDeviceMapper = selected_rides.get(ride_spinner.getSelectedItemPosition());
+			if (selectedDeviceMapper.getHasMonitor()) {
+				deviceIdList.add(selected_rides.get(ride_spinner.getSelectedItemPosition()).getDeviceId());
+			} else {
+				for (DeviceMapper mapper : selected_rides)
+					deviceIdList.add(mapper.getDeviceId());
+			}
+
+			intent.putStringArrayListExtra(ShowImageActivity.EXTRA_DEVICE_ID, deviceIdList);
+			intent.putExtra(ShowImageActivity.EXTRA_SOLD, selectedDeviceMapper.getImageSold());
 			startActivity(intent);
 			break;
 		default:
@@ -173,21 +169,20 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
 			String selected_park_id = all_parks.get(position).getParkId();
 			ArrayList<String> selected_ride_names = new ArrayList<>();
 			selected_rides.clear();
+
 			for (int i = 0; i < all_rides.size(); i++) {
 				if (all_rides.get(i).getParkId().equals(selected_park_id)) {
 					selected_ride_names.add(all_rides.get(i).getName());
 					selected_rides.add(all_rides.get(i));
 				}
 			}
+
 			ArrayAdapter<String> ride_name_adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, selected_ride_names);
 			ride_name_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 			ride_spinner.setAdapter(ride_name_adapter);
 
 			break;
 		case R.id.ride_spinner:
-			boolean isHasMonitor = selected_rides.get(position).getHasMonitor();
-			hasDeviceView.setVisibility(isHasMonitor ? View.VISIBLE : View.GONE);
-			notHasDeviceButton.setVisibility(isHasMonitor ? View.GONE : View.VISIBLE);
 			break;
 		default:
 			break;
@@ -377,8 +372,9 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
 		@Override
 		protected ImageMapper doInBackground(String... params) {
 			ImageDBManager.sharedInstance(getActivity());
-			ImageMapper result = ImageDBManager.getImage(params[0]);
-			return result;
+//			ImageMapper result = ImageDBManager.getImage(params[0]);
+//			return result;
+			return null;
 		}
 
 		@Override
@@ -387,7 +383,7 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
 			if (imageMapper != null) {
 				thumbnail_image_url = Constants.IMAGE_CONSTANT_URL + imageMapper.getRegion() + ".thumbs/tn_" + imageMapper.getImageName();
 				Log.d("Image URL:", Constants.IMAGE_CONSTANT_URL + imageMapper.getRegion() + ".thumbs/tn_" + imageMapper.getImageName());
-				image_thumb.setImageUrl(thumbnail_image_url);
+//				image_thumb.setImageUrl(thumbnail_image_url);
 				full_image_url = Constants.IMAGE_CONSTANT_URL + imageMapper.getRegion() + ".pictures/" + imageMapper.getImageName();
 			}
 		}

@@ -4,18 +4,14 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -23,25 +19,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.pyt.postyourfun.Adapter.GridViewImageAdapter;
 import com.pyt.postyourfun.Adapter.GridViewImageInterface;
 import com.pyt.postyourfun.R;
-import com.pyt.postyourfun.Utils.Image.SmartImageView;
 import com.pyt.postyourfun.Utils.UserImageSQLiteHelper;
 import com.pyt.postyourfun.Utils.UsersImageModel;
 import com.pyt.postyourfun.constants.Constants;
+import com.pyt.postyourfun.social.SocialController;
+import com.pyt.postyourfun.social.SocialControllerInterface;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.zip.CheckedOutputStream;
 
-public class ViewImageFragment extends Fragment implements View.OnClickListener, GridViewImageInterface {
+public class ViewImageFragment extends Fragment implements View.OnClickListener, GridViewImageInterface,SocialControllerInterface {
 
 	private GridView imageGrid;
 	private Button btnShareFriend;
@@ -62,6 +57,8 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
 	private int windowWidth;
 	private int windowHeight;
 
+	private SocialController _socialController = null;
+
 	public static ViewImageFragment newInstance() {
 		ViewImageFragment fragment = new ViewImageFragment();
 		return fragment;
@@ -76,6 +73,7 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
 		super.onCreate(savedInstanceState);
 		context = getActivity();
 		imageSQLiteHelper = new UserImageSQLiteHelper(getActivity());
+		_socialController = SocialController.sharedInstance(getActivity(), this);
 	}
 
 	@Override
@@ -109,8 +107,28 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
 	@Override
 	public void onResume() {
 		super.onResume();
+		if (_socialController != null) {
+			_socialController.onResume();
+		}
+
 		initView();
 		Log.d("View Fragment: ", "Resumed");
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (_socialController != null) {
+			_socialController.onActivityResult(requestCode, resultCode, data);
+		}
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (_socialController != null) {
+			_socialController.onDestroy();
+		}
 	}
 
 	@Override
@@ -118,6 +136,15 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
 
 		switch (v.getId()) {
 		case R.id.btn_shareFriends:
+			if (gridViewImageAdapter.getSelectedPosition().isEmpty()) {
+				Toast.makeText(getActivity(), "Please select image", Toast.LENGTH_SHORT).show();
+			} else {
+				_socialController.shareWithFaceBook(ViewImageFragment.this,
+				                                    "",
+				                                    "",
+				                                    fullImages.get(gridViewImageAdapter.getSelectedPosition().get(0)),
+				                                    fullImages.get(gridViewImageAdapter.getSelectedPosition().get(0)));
+			}
 			break;
 		default:
 			break;
@@ -273,5 +300,15 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
 		opts.inSampleSize = scale;
 		Bitmap bitmap = BitmapFactory.decodeFile(Constants.IMAGE_FULL_PATH + "/" + imageId + ".jpg", opts);
 		expandedImageView.setImageBitmap(bitmap);
+	}
+
+	@Override
+	public void onSuccess(int type, int action) {
+
+	}
+
+	@Override
+	public void onFailure(int type, int action) {
+
 	}
 }

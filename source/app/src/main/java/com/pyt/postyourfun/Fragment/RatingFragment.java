@@ -4,9 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-
-import android.provider.Settings;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,7 +18,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.share.widget.ShareDialog;
 import com.pyt.postyourfun.R;
 import com.pyt.postyourfun.constants.PostYourFunApp;
 import com.pyt.postyourfun.dynamoDBClass.DeviceMapper;
@@ -31,13 +27,10 @@ import com.pyt.postyourfun.dynamoDBClass.ParkSocialMediaMapper;
 import com.pyt.postyourfun.dynamoDBManager.tableTasks.DeviceRateDBManager;
 import com.pyt.postyourfun.dynamoDBManager.tableTasks.ParkInformationDBManager;
 import com.pyt.postyourfun.dynamoDBManager.tableTasks.ParkSocialMediaDBManager;
-import com.pyt.postyourfun.social.FacebookController;
 import com.pyt.postyourfun.social.SocialController;
 import com.pyt.postyourfun.social.SocialControllerInterface;
 
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
 
 public class RatingFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener, SocialControllerInterface {
 
@@ -48,7 +41,7 @@ public class RatingFragment extends Fragment implements View.OnClickListener, Ad
 	private TextView rate_park_textView;
 
 	private String user_id;
-	private String park_url, image_url, place_id;
+	private String park_url, image_url;
 	private String selected_park_name;
 	private String selected_ride_name;
 	private String general_rate_text = "Rate your fun at the ";
@@ -280,7 +273,6 @@ public class RatingFragment extends Fragment implements View.OnClickListener, Ad
 		@Override
 		protected void onPostExecute(ParkSocialMediaMapper parkSocialMediaMapper) {
 			super.onPostExecute(parkSocialMediaMapper);
-			place_id = parkSocialMediaMapper.getFacebook();
 //            I just finished the ride Helix in Liseberg. Speed 5/5, G-Force 5/5 and Adrenaline kick 5/5
 			String comment_text =
 					general_fb_share_text + selected_ride_name + " in " + selected_park_name + ". Speed " + String.valueOf((int) (speed_rate.getRating())) +
@@ -290,8 +282,7 @@ public class RatingFragment extends Fragment implements View.OnClickListener, Ad
 			                                    comment_text,
 			                                    all_parks.get(theme_selector.getSelectedItemPosition()).getName(),
 			                                    park_url,
-			                                    image_url,
-			                                    place_id);
+			                                    image_url);
 		}
 	}
 }

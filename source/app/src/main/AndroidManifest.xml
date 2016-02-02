@@ -76,7 +76,13 @@
 
 		<activity
 			android:name=".activity.ShowImageActivity"
+			android:screenOrientation="portrait"
 			android:label="@string/app_name" />
+
+		<provider android:authorities="com.facebook.app.FacebookContentProvider1485170261774151"
+			android:name="com.facebook.FacebookContentProvider"
+			android:exported="true"/>
+
 
 		<!--PayPal service-->
 		<service

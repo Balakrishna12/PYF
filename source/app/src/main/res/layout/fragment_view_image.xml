@@ -18,8 +18,7 @@
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			android:text="Your fun library"
 			android:id="@+id/textView11"
-			android:layout_margin="16dp"
-			android:layout_below="@+id/imageView" />
+			android:layout_margin="16dp" />
 
 		<GridView
 			android:layout_width="match_parent"

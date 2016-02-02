@@ -21,6 +21,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.pyt.postyourfun.Adapter.GridViewShowAllAdapter;
+import com.pyt.postyourfun.Image.ImageDownloadManager;
 import com.pyt.postyourfun.Image.ImageDownloadMangerInterface;
 import com.pyt.postyourfun.Payment.PaymentController;
 import com.pyt.postyourfun.R;
@@ -28,9 +29,7 @@ import com.pyt.postyourfun.Utils.UserImageSQLiteHelper;
 import com.pyt.postyourfun.Utils.UsersImageModel;
 import com.pyt.postyourfun.constants.Constants;
 import com.pyt.postyourfun.dynamoDBClass.ImageMapper;
-import com.pyt.postyourfun.dynamoDBClass.ImageQueryMapper;
 import com.pyt.postyourfun.dynamoDBManager.tableTasks.ImageDBManager;
-import com.pyt.postyourfun.dynamoDBManager.tableTasks.ImageQueryDBManager;
 import com.pyt.postyourfun.dynamoDBManager.tableTasks.UserImageDBmanager;
 
 import java.util.ArrayList;
@@ -45,6 +44,7 @@ import static com.pyt.postyourfun.constants.PostYourFunApp.getCurrentTimDate;
 public class ShowImageActivity extends Activity implements ImageDownloadMangerInterface {
 
 	public static final String EXTRA_DEVICE_ID = "extra_device_id";
+	public static final String EXTRA_SOLD = "extra_sold";
 
 	private ProgressDialog progressDialog;
 	private GridView listView;
@@ -82,7 +82,11 @@ public class ShowImageActivity extends Activity implements ImageDownloadMangerIn
 			public void onClick(View v) {
 				ImageWrapper wrapper = (ImageWrapper) v.getTag();
 				if (wrapper != null && !TextUtils.isEmpty(wrapper.getFull_image_url())) {
-					PaymentController.sharedInstance().buyImage(ShowImageActivity.this, 8.0f, "EUR", wrapper.getFull_image_url(), ShowImageActivity.this);
+					if (getIntent().getBooleanExtra(EXTRA_SOLD, false)) {
+						PaymentController.sharedInstance().buyImage(ShowImageActivity.this, 8.0f, "EUR", wrapper.getFull_image_url(), ShowImageActivity.this);
+					} else {
+						ImageDownloadManager.getSharedInstance().downloadImage(wrapper.getFull_image_url(), ShowImageActivity.this, ShowImageActivity.this);
+					}
 				} else {
 					Toast.makeText(ShowImageActivity.this, "Please get image first.", Toast.LENGTH_SHORT).show();
 				}
@@ -90,7 +94,8 @@ public class ShowImageActivity extends Activity implements ImageDownloadMangerIn
 		});
 
 		initImageLoader(getApplicationContext());
-		new GetImageQuery().execute(getIntent().getStringExtra(EXTRA_DEVICE_ID));
+
+		new GetImage().execute(getIntent().getStringArrayListExtra(EXTRA_DEVICE_ID));
 	}
 
 	@Override
@@ -145,39 +150,40 @@ public class ShowImageActivity extends Activity implements ImageDownloadMangerIn
 		}
 	}
 
-	protected class GetImageQuery extends AsyncTask<String, Void, List<ImageQueryMapper>> {
+//	protected class GetImageQuery extends AsyncTask<ArrayList<String>, Void, List<ImageQueryMapper>> {
+//
+//		@Override
+//		protected void onPreExecute() {
+//			super.onPreExecute();
+//			showProgressBur();
+//		}
+//
+//		@Override
+//		protected List<ImageQueryMapper> doInBackground(ArrayList<String>... params) {
+//			ImageQueryDBManager.sharedInstance(ShowImageActivity.this);
+//			List<ImageQueryMapper> mappers = new ArrayList<>();
+//			for (String deviceId : params[0]) mappers.addAll(ImageQueryDBManager.getImage(deviceId));
+//			return mappers;
+//		}
+//
+//		@Override
+//		protected void onPostExecute(List<ImageQueryMapper> mappers) {
+//			super.onPostExecute(mappers);
+//			if (mappers != null && !mappers.isEmpty()) {
+//				new GetImage().execute(mappers);
+//			} else hideProgressBur();
+//		}
+//	}
 
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			showProgressBur();
-		}
-
-		@Override
-		protected List<ImageQueryMapper> doInBackground(String... params) {
-
-			ImageQueryDBManager.sharedInstance(ShowImageActivity.this);
-			return ImageQueryDBManager.getImage(params[0]);
-		}
-
-		@Override
-		protected void onPostExecute(List<ImageQueryMapper> mappers) {
-			super.onPostExecute(mappers);
-			if (mappers != null && !mappers.isEmpty()) {
-				new GetImage().execute(mappers);
-			} else hideProgressBur();
-		}
-	}
-
-	protected class GetImage extends AsyncTask<List<ImageQueryMapper>, Void, List<ImageMapper>> {
+	protected class GetImage extends AsyncTask<ArrayList<String>, Void, List<ImageMapper>> {
 
 		@SafeVarargs
 		@Override
-		protected final List<ImageMapper> doInBackground(List<ImageQueryMapper>... params) {
+		protected final List<ImageMapper> doInBackground(ArrayList<String>... params) {
 			ImageDBManager.sharedInstance(ShowImageActivity.this);
 			List<ImageMapper> imageMappers = new ArrayList<>();
-			for (ImageQueryMapper imageQueryMapper : params[0])
-				imageMappers.add(ImageDBManager.getImage(imageQueryMapper.getImage_id()));
+			for (String deviceId : params[0])
+				imageMappers.addAll(ImageDBManager.getImageByDeviceId(deviceId));
 			return imageMappers;
 		}
 
@@ -204,6 +210,42 @@ public class ShowImageActivity extends Activity implements ImageDownloadMangerIn
 			}
 		}
 	}
+
+//	protected class GetImage extends AsyncTask<List<ImageQueryMapper>, Void, List<ImageMapper>> {
+//
+//		@SafeVarargs
+//		@Override
+//		protected final List<ImageMapper> doInBackground(List<ImageQueryMapper>... params) {
+//			ImageDBManager.sharedInstance(ShowImageActivity.this);
+//			List<ImageMapper> imageMappers = new ArrayList<>();
+//			for (ImageQueryMapper mapper : params[0])
+//				imageMappers.add(ImageDBManager.getImage(mapper.getImage_id()).get(0));
+//			return imageMappers;
+//		}
+//
+//		@Override
+//		protected void onPostExecute(List<ImageMapper> imageMappers) {
+//			super.onPostExecute(imageMappers);
+//			hideProgressBur();
+//			if (imageMappers != null && !imageMappers.isEmpty()) {
+//				List<ImageWrapper> imageWrappers = new ArrayList<>();
+//				for (ImageMapper imageMapper : imageMappers)
+//					imageWrappers.add(new ImageWrapper(imageMapper));
+//				GridViewShowAllAdapter adapter = new GridViewShowAllAdapter(ShowImageActivity.this, imageWrappers);
+//				adapter.setOnItemClickListener(new GridViewShowAllAdapter.OnItemClickListener() {
+//					@Override
+//					public void itemClick(ImageWrapper item) {
+//						imageView.setVisibility(View.VISIBLE);
+//						buyButton.setVisibility(View.VISIBLE);
+//						ImageLoader.getInstance().displayImage(item.getThumbnail_image_url(), imageView);
+//						buyButton.setTag(item);
+//						thumbnailSelect = item.getThumbnail_image_url();
+//					}
+//				});
+//				listView.setAdapter(adapter);
+//			}
+//		}
+//	}
 
 	public static class ImageWrapper {
 		private String thumbnail_image_url;

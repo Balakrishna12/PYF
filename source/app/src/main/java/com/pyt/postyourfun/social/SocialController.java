@@ -47,9 +47,9 @@ public class SocialController {
 		fbController.shareWithFaceBook(activity, description);
 	}
 
-	public void shareWithFaceBook(Fragment fragment, String description, String park_name, String park_url, String image_url, String place_id) {
+	public void shareWithFaceBook(Fragment fragment, String description, String park_name, String park_url, String image_url) {
 		initFacebookController();
-		fbController.shareWithFaceBook(fragment, description, park_name, park_url, image_url, place_id);
+		fbController.shareWithFaceBook(fragment, description, park_name, park_url, image_url);
 	}
 
 	private void initFacebookController() {

@@ -1,27 +1,18 @@
 package com.pyt.postyourfun.Adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Point;
-import android.util.DisplayMetrics;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
+import android.widget.CompoundButton;
 
-import com.google.android.gms.plus.model.people.Person;
 import com.pyt.postyourfun.R;
-import com.pyt.postyourfun.Utils.Image.SmartImage;
 import com.pyt.postyourfun.Utils.Image.SmartImageView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Simon on 7/18/2015.
@@ -31,11 +22,21 @@ public class GridViewImageAdapter extends BaseAdapter {
 	private Context context;
 	private ArrayList<String> image_grid;
 	private GridViewImageInterface callback;
+	private List<Integer> selectedPosition;
 
 	public GridViewImageAdapter(Context context, ArrayList<String> images, GridViewImageInterface callback) {
 		this.context = context;
 		this.image_grid = images;
 		this.callback = callback;
+		selectedPosition = new ArrayList<>();
+	}
+
+	public List<Integer> getSelectedPosition() {
+		return selectedPosition;
+	}
+
+	public void setSelectedPosition(List<Integer> selectedPosition) {
+		this.selectedPosition = selectedPosition;
 	}
 
 	@Override
@@ -63,6 +64,18 @@ public class GridViewImageAdapter extends BaseAdapter {
 
 		SmartImageView imageView = (SmartImageView) view.findViewById(R.id.image_element);
 		CheckBox imageCheck = (CheckBox) view.findViewById(R.id.image_check);
+
+		imageCheck.setOnCheckedChangeListener(null);
+		imageCheck.setChecked(selectedPosition.contains(position) ? true : false);
+		imageCheck.setTag(position);
+		imageCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				selectedPosition.clear();
+				if (isChecked) selectedPosition.add((Integer) buttonView.getTag());
+				notifyDataSetChanged();
+			}
+		});
 
 		final String imageUrl = image_grid.get(position);
 		imageView.setImageUrl(imageUrl);

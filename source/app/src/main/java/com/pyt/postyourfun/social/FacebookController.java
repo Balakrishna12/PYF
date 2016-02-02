@@ -1,11 +1,9 @@
 package com.pyt.postyourfun.social;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.facebook.AccessToken;
@@ -17,7 +15,6 @@ import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.facebook.share.model.ShareContent;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
 
@@ -97,14 +94,13 @@ public class FacebookController {
 		}
 	}
 
-	public void shareWithFaceBook(Fragment fragment, String description, String park_name, String park_url, String image_url, String place_id) {
+	public void shareWithFaceBook(Fragment fragment, String description, String park_name, String park_url, String image_url) {
 		shareDialog = new ShareDialog(fragment);
 		if (ShareDialog.canShow(ShareLinkContent.class)) {
 			ShareLinkContent content = new ShareLinkContent.Builder().setContentDescription(description)
 			                                                         .setContentTitle(park_name)
 			                                                         .setContentUrl(Uri.parse(park_url))
 			                                                         .setImageUrl(Uri.parse(image_url))
-			                                                         .setPlaceId(place_id)
 			                                                         .build();
 			shareDialog.show(content);
 		}

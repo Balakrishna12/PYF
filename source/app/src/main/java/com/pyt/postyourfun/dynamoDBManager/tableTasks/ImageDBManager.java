@@ -1,22 +1,13 @@
 package com.pyt.postyourfun.dynamoDBManager.tableTasks;
 
-import android.util.Log;
-
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapperConfig;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
-import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
-import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import com.pyt.postyourfun.dynamoDBClass.ImageMapper;
-import com.pyt.postyourfun.dynamoDBClass.ImageQueryMapper;
-import com.pyt.postyourfun.dynamoDBClass.ParkInformationMapper;
-import com.pyt.postyourfun.dynamoDBClass.ParkMapper;
-import com.pyt.postyourfun.dynamoDBClass.UserMapper;
 import com.pyt.postyourfun.dynamoDBManager.DynamoDBManager;
 
 import java.util.HashMap;
@@ -30,7 +21,7 @@ public class ImageDBManager extends DynamoDBManager {
 
 	private String TAG = "ImageDBManager";
 
-	public static ImageMapper getImage(String image_ID) {
+	public static List<ImageMapper> getImage(String image_ID) {
 		AmazonDynamoDBClient ddb = clientManager.ddb();
 		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
@@ -44,13 +35,27 @@ public class ImageDBManager extends DynamoDBManager {
 			scanFilter.put("ImageId", scanCondition);
 			scanExpression.setScanFilter(scanFilter);
 
-			List<ImageMapper> results = mapper.scan(ImageMapper.class, scanExpression);
-			if (results.size() > 0) {
-				ImageMapper imageMapper = results.get(0);
-				return imageMapper;
-			} else {
-				return null;
-			}
+			return mapper.scan(ImageMapper.class, scanExpression);
+		} catch (AmazonServiceException ex) {
+			clientManager.wipeCredentialsOnAuthError(ex);
+		}
+		return null;
+	}
+
+	public static List<ImageMapper> getImageByDeviceId(String deviceId) {
+		AmazonDynamoDBClient ddb = clientManager.ddb();
+		DynamoDBMapper mapper = new DynamoDBMapper(ddb);
+
+		try {
+			DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+			Map<String, Condition> scanFilter = new HashMap<String, Condition>();
+
+			Condition scanCondition =
+					new Condition().withComparisonOperator(ComparisonOperator.EQ.toString()).withAttributeValueList(new AttributeValue().withS(deviceId));
+			scanFilter.put("DeviceId", scanCondition);
+			scanExpression.setScanFilter(scanFilter);
+
+			return mapper.scan(ImageMapper.class, scanExpression);
 		} catch (AmazonServiceException ex) {
 			clientManager.wipeCredentialsOnAuthError(ex);
 		}

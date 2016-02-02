@@ -57,81 +57,14 @@
 				android:textAppearance="?android:attr/textAppearanceMedium" />
 
 			<Button
-				android:id="@+id/do_not_have_device"
+				android:id="@+id/images"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginTop="10dp"
 				android:background="@xml/button_background"
 				android:text="View ride image gallery"
 				android:textColor="@android:color/white"
-				android:visibility="gone" />
-
-			<LinearLayout
-				android:id="@+id/layout_have_device"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="vertical"
-				android:visibility="gone">
-
-				<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="40dp"
-					android:layout_marginTop="5dp"
-					android:focusable="true"
-					android:focusableInTouchMode="true"
-					android:orientation="horizontal">
-
-					<EditText
-						android:id="@+id/image_number"
-						android:layout_width="match_parent"
-						android:layout_height="match_parent"
-						android:layout_marginRight="2dp"
-						android:layout_weight="1"
-						android:background="@xml/edittext_background"
-						android:ems="10"
-						android:inputType="number"
-						android:padding="3dp" />
-
-					<Button
-						android:id="@+id/btn_get_image"
-						android:layout_width="match_parent"
-						android:layout_height="match_parent"
-						android:layout_marginLeft="3dp"
-						android:layout_weight="1"
-						android:background="@xml/button_background"
-						android:text="Get Image"
-						android:textColor="@android:color/white" />
-				</LinearLayout>
-
-				<com.pyt.postyourfun.Utils.Image.SmartImageView
-					android:id="@+id/image_thumb"
-					android:layout_width="250dp"
-					android:layout_height="150dp"
-					android:layout_gravity="center_horizontal"
-					android:layout_marginTop="7dp"
-					android:scaleType="fitXY"
-					android:src="@drawable/default_image" />
-
-				<TextView
-					android:id="@+id/textView9"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center_horizontal"
-					android:layout_marginTop="10dp"
-					android:text="8 EUR for full quality image"
-					android:textAppearance="?android:attr/textAppearanceMedium" />
-
-				<Button
-					android:id="@+id/btn_buy_image"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center_horizontal"
-					android:layout_marginTop="10dp"
-					android:background="@xml/button_background"
-					android:padding="5dp"
-					android:text="Buy Image"
-					android:textColor="@android:color/white" />
-			</LinearLayout>
+				android:visibility="visible" />
 		</LinearLayout>
 	</ScrollView>
 </FrameLayout>

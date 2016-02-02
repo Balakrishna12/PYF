@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.pyt.postyourfun.Utils.Image.WebImage;
 import com.pyt.postyourfun.constants.Constants;
 
 import java.io.BufferedInputStream;
@@ -132,6 +131,7 @@ public class ImageDownloadManager {
 				try {
 					String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
 					InputStream input = new BufferedInputStream(url.openStream());
+					new File(Constants.IMAGE_FULL_PATH).mkdirs();
 					output = new FileOutputStream(new File(Constants.IMAGE_FULL_PATH, fileName));
 
 					byte data[] = new byte[30 * 1024];
