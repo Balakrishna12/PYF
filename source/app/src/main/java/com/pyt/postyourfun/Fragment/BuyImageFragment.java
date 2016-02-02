@@ -43,6 +43,7 @@ import com.pyt.postyourfun.dynamoDBManager.tableTasks.RideDBManager;
 import com.pyt.postyourfun.dynamoDBManager.tableTasks.UserImageDBmanager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.pyt.postyourfun.constants.PostYourFunApp.createGUID;
 import static com.pyt.postyourfun.constants.PostYourFunApp.getCurrentTimDate;
@@ -152,15 +153,13 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
 			if (image_number.getText().toString().equals("")) {
 				Toast.makeText(getActivity(), "Enter image number", Toast.LENGTH_SHORT).show();
 			} else {
-				new GetImageQuery().execute(device_id, image_number.getText().toString());
+				new GetImageQuery().execute(device_id);
 			}
 			break;
 		case R.id.do_not_have_device:
-
-
-
-
-			startActivity(new Intent(getActivity(), ShowImageActivity.class));
+			Intent intent = new Intent(getActivity(), ShowImageActivity.class);
+			intent.putExtra(ShowImageActivity.EXTRA_DEVICE_ID, selected_rides.get(ride_spinner.getSelectedItemPosition()).getDeviceId());
+			startActivity(intent);
 			break;
 		default:
 			break;
@@ -245,7 +244,6 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
 
 		ArrayList<UsersImageModel> result = new ArrayList<>();
 		result = dbHelper.getAllImages();
-		Log.d("SQLite Confirm: ", String.valueOf(result.size()));
 	}
 
 	protected class GetPark extends AsyncTask<String, Void, ParkMapper> {
@@ -356,20 +354,20 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
 		}
 	}
 
-	protected class GetImageQuery extends AsyncTask<String, Void, ImageQueryMapper> {
+	protected class GetImageQuery extends AsyncTask<String, Void, List<ImageQueryMapper>> {
 		@Override
-		protected ImageQueryMapper doInBackground(String... params) {
+		protected List<ImageQueryMapper> doInBackground(String... params) {
 
 			ImageQueryDBManager.sharedInstance(getActivity());
-			ImageQueryMapper result_image = ImageQueryDBManager.getImage(params[0], params[1]);
-			return result_image;
+			List<ImageQueryMapper> mappers = ImageQueryDBManager.getImage(params[0]);
+			return mappers;
 		}
 
 		@Override
-		protected void onPostExecute(ImageQueryMapper imageMapper) {
-			super.onPostExecute(imageMapper);
-			if (imageMapper != null) {
-				new GetImage().execute(imageMapper.getImage_id());
+		protected void onPostExecute(List<ImageQueryMapper> mappers) {
+			super.onPostExecute(mappers);
+			if (mappers != null && !mappers.isEmpty()) {
+				new GetImage().execute(mappers.get(0).getImage_id());
 			}
 		}
 	}

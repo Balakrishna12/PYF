@@ -3,8 +3,6 @@ package com.pyt.postyourfun.Payment;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.media.Image;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
@@ -19,14 +17,7 @@ import com.pyt.postyourfun.constants.Constants;
 
 import org.json.JSONException;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by Simon on 7/15/2015.
@@ -72,6 +63,17 @@ public class PaymentController {
 		String imageTitle = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
 		PayPalPayment payment = new PayPalPayment(new BigDecimal(imagePrice), currencyUnit, imageTitle, PayPalPayment.PAYMENT_INTENT_SALE);
 		Intent intent = new Intent(fragment.getActivity(), PaymentActivity.class);
+		intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
+		intent.putExtra(PaymentActivity.EXTRA_PAYMENT, payment);
+		fragment.startActivityForResult(intent, 0);
+	}
+
+	public void buyImage(Activity fragment, float imagePrice, String currencyUnit, String imageUrl, ImageDownloadMangerInterface callback) {
+		this.imageUrl = imageUrl;
+		this.callback = callback;
+		String imageTitle = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+		PayPalPayment payment = new PayPalPayment(new BigDecimal(imagePrice), currencyUnit, imageTitle, PayPalPayment.PAYMENT_INTENT_SALE);
+		Intent intent = new Intent(fragment, PaymentActivity.class);
 		intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
 		intent.putExtra(PaymentActivity.EXTRA_PAYMENT, payment);
 		fragment.startActivityForResult(intent, 0);
