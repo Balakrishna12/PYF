@@ -91,7 +91,7 @@ public class MainActivity extends FragmentActivity {
 
 		public MyPagerAdapter(FragmentManager fm) {
 			super(fm);
-			TITLES = new String[]{"RATE", "BUY", "VIEW"};
+			TITLES = new String[]{"RATE", "IMAGE", "VIEW"};
 		}
 
 		@Override
