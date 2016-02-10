@@ -52,6 +52,11 @@ public class SocialController {
 		fbController.shareWithFaceBook(fragment, description, park_name, park_url, image_url);
 	}
 
+	public void shareWithFaceBook(Activity activity, String description, String park_name, String park_url, String image_url) {
+		initFacebookController();
+		fbController.shareWithFaceBook(activity, description, park_name, park_url, image_url);
+	}
+
 	private void initFacebookController() {
 		if (fbController == null) {
 			fbController = FacebookController.sharedInstance();

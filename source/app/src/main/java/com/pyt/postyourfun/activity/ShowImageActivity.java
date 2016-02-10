@@ -3,11 +3,14 @@ package com.pyt.postyourfun.activity;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -15,6 +18,8 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.facebook.share.model.SharePhotoContent;
+import com.facebook.share.widget.ShareDialog;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -31,7 +36,14 @@ import com.pyt.postyourfun.constants.Constants;
 import com.pyt.postyourfun.dynamoDBClass.ImageMapper;
 import com.pyt.postyourfun.dynamoDBManager.tableTasks.ImageDBManager;
 import com.pyt.postyourfun.dynamoDBManager.tableTasks.UserImageDBmanager;
+import com.pyt.postyourfun.social.SocialController;
+import com.pyt.postyourfun.social.SocialControllerInterface;
+import com.sromku.simple.fb.SimpleFacebook;
+import com.sromku.simple.fb.entities.Photo;
+import com.sromku.simple.fb.entities.Privacy;
+import com.sromku.simple.fb.listeners.OnPublishListener;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +53,7 @@ import static com.pyt.postyourfun.constants.PostYourFunApp.getCurrentTimDate;
 /**
  * Created by r8tin on 2/1/16.
  */
-public class ShowImageActivity extends Activity implements ImageDownloadMangerInterface {
+public class ShowImageActivity extends Activity implements ImageDownloadMangerInterface, SocialControllerInterface {
 
     public static final String EXTRA_DEVICE_ID = "extra_device_id";
     public static final String EXTRA_SOLD = "extra_sold";
@@ -54,12 +66,15 @@ public class ShowImageActivity extends Activity implements ImageDownloadMangerIn
     private String userId;
     private SharedPreferences _sharedPreference;
     private String thumbnailSelect = "";
+    private SimpleFacebook simpleFacebook;
+    private SocialController _socialController = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_all_image);
+        _socialController = SocialController.sharedInstance(this, this);
 
         _sharedPreference = getSharedPreferences("user_info", 0);
         userId = _sharedPreference.getString("user_id", "");
@@ -99,7 +114,17 @@ public class ShowImageActivity extends Activity implements ImageDownloadMangerIn
     }
 
     @Override
-    public void onSuccessImageDownload(Boolean isSuccess, String image_Url, String path) {
+    protected void onResume() {
+        super.onResume();
+        simpleFacebook = SimpleFacebook.getInstance(this);
+        if (_socialController != null) {
+            _socialController.onResume();
+        }
+    }
+
+
+    @Override
+    public void onSuccessImageDownload(Boolean isSuccess, final String image_Url, final String path) {
         String transactionId = createGUID();
         String imageId = image_Url.substring(image_Url.lastIndexOf("/") + 1, image_Url.length() - 4);
         String dateTime = getCurrentTimDate(System.currentTimeMillis(), "dd.MM.yyyy");
@@ -116,9 +141,83 @@ public class ShowImageActivity extends Activity implements ImageDownloadMangerIn
         imageModel.setLocalPath(path);
         dbHelper.addImage(imageModel);
 
-        ArrayList<UsersImageModel> result = new ArrayList<>();
-        result = dbHelper.getAllImages();
-        Log.d("SQLite Confirm: ", String.valueOf(result.size()));
+        showShareDialog(image_Url, path);
+    }
+
+
+    private void showShareDialog(final String image_Url, final String path) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(ShowImageActivity.this);
+                builder.setTitle("Share Image")
+                        .setMessage("Share this image with Facebook")
+                        .setPositiveButton("Share", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ShareDialog shareDialog = new ShareDialog(ShowImageActivity.this);
+                                SharePhotoContent content = new SharePhotoContent.Builder().build();
+                                File purposeFile = new File(path);
+                                if (purposeFile.exists()) {
+                                    if (shareDialog.canShow(content)) {
+                                        Photo photo = new Photo.Builder()
+                                                .setImage(BitmapFactory.decodeFile(purposeFile.getPath()))
+                                                .build();
+                                        SimpleFacebook.getInstance().publish(photo, true, null);
+                                    } else {
+                                        Privacy privacy = new Privacy.Builder().setPrivacySettings(Privacy.PrivacySettings.ALL_FRIENDS).build();
+                                        Photo photo = new Photo.Builder()
+                                                .setImage(BitmapFactory.decodeFile(purposeFile.getPath()))
+                                                .setPrivacy(privacy)
+                                                .build();
+                                        SimpleFacebook.getInstance().publish(photo, false, new OnPublishListener() {
+
+                                            @Override
+                                            public void onException(Throwable throwable) {
+                                                if (progressDialog != null) {
+                                                    progressDialog.dismiss();
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onFail(String reason) {
+                                                if (progressDialog != null) {
+                                                    progressDialog.dismiss();
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onThinking() {
+                                                progressDialog.show();
+                                            }
+
+                                            @Override
+                                            public void onComplete(String response) {
+                                                if (progressDialog != null) {
+                                                    progressDialog.dismiss();
+                                                }
+                                            }
+                                        });
+                                    }
+                                } else {
+                                    _socialController.shareWithFaceBook(ShowImageActivity.this,
+                                            "",
+                                            "",
+                                            image_Url,
+                                            image_Url);
+                                }
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .setCancelable(false)
+                        .create().show();
+            }
+        });
     }
 
     public static void initImageLoader(Context context) {
@@ -151,7 +250,34 @@ public class ShowImageActivity extends Activity implements ImageDownloadMangerIn
         }
     }
 
-//	protected class GetImageQuery extends AsyncTask<ArrayList<String>, Void, List<ImageQueryMapper>> {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        simpleFacebook.onActivityResult(requestCode, resultCode, data);
+        if (_socialController != null)
+            _socialController.onActivityResult(requestCode, resultCode, data);
+
+    }
+
+    @Override
+    public void onSuccess(int type, int action) {
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (_socialController != null) {
+            _socialController.onDestroy();
+        }
+    }
+
+    @Override
+    public void onFailure(int type, int action) {
+
+    }
+
+    //	protected class GetImageQuery extends AsyncTask<ArrayList<String>, Void, List<ImageQueryMapper>> {
 //
 //		@Override
 //		protected void onPreExecute() {

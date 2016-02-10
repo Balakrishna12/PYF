@@ -106,6 +106,18 @@ public class FacebookController {
 		}
 	}
 
+	public void shareWithFaceBook(Activity activity, String description, String park_name, String park_url, String image_url) {
+		shareDialog = new ShareDialog(activity);
+		if (ShareDialog.canShow(ShareLinkContent.class)) {
+			ShareLinkContent content = new ShareLinkContent.Builder().setContentDescription(description)
+					.setContentTitle(park_name)
+					.setContentUrl(Uri.parse(park_url))
+					.setImageUrl(Uri.parse(image_url))
+					.build();
+			shareDialog.show(content);
+		}
+	}
+
 	/*
 	public void shareWithFaceBook(Fragment fragment, String description){
 		shareDialog = new ShareDialog(fragment);
