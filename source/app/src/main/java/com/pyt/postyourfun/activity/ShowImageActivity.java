@@ -40,8 +40,6 @@ import com.pyt.postyourfun.social.SocialController;
 import com.pyt.postyourfun.social.SocialControllerInterface;
 import com.sromku.simple.fb.SimpleFacebook;
 import com.sromku.simple.fb.entities.Photo;
-import com.sromku.simple.fb.entities.Privacy;
-import com.sromku.simple.fb.listeners.OnPublishListener;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -141,81 +139,41 @@ public class ShowImageActivity extends Activity implements ImageDownloadMangerIn
         imageModel.setLocalPath(path);
         dbHelper.addImage(imageModel);
 
-        showShareDialog(image_Url, path);
+        shareImage(image_Url, path);
     }
 
 
-    private void showShareDialog(final String image_Url, final String path) {
+    private void shareImage(final String image_Url, final String path) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                AlertDialog.Builder builder = new AlertDialog.Builder(ShowImageActivity.this);
-                builder.setTitle("Share Image")
-                        .setMessage("Share this image with Facebook")
-                        .setPositiveButton("Share", new DialogInterface.OnClickListener() {
+                ShareDialog shareDialog = new ShareDialog(ShowImageActivity.this);
+                SharePhotoContent content = new SharePhotoContent.Builder().build();
+                File purposeFile = new File(path);
+                if (purposeFile.exists()) {
+                    if (shareDialog.canShow(content)) {
+                        Photo photo = new Photo.Builder()
+                                .setImage(BitmapFactory.decodeFile(purposeFile.getPath()))
+                                .build();
+                        SimpleFacebook.getInstance().publish(photo, true, null);
+                    } else {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(ShowImageActivity.this);
+                        builder.setTitle("Share Image").setMessage("You can not share without Facebook App").setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                ShareDialog shareDialog = new ShareDialog(ShowImageActivity.this);
-                                SharePhotoContent content = new SharePhotoContent.Builder().build();
-                                File purposeFile = new File(path);
-                                if (purposeFile.exists()) {
-                                    if (shareDialog.canShow(content)) {
-                                        Photo photo = new Photo.Builder()
-                                                .setImage(BitmapFactory.decodeFile(purposeFile.getPath()))
-                                                .build();
-                                        SimpleFacebook.getInstance().publish(photo, true, null);
-                                    } else {
-                                        Privacy privacy = new Privacy.Builder().setPrivacySettings(Privacy.PrivacySettings.ALL_FRIENDS).build();
-                                        Photo photo = new Photo.Builder()
-                                                .setImage(BitmapFactory.decodeFile(purposeFile.getPath()))
-                                                .setPrivacy(privacy)
-                                                .build();
-                                        SimpleFacebook.getInstance().publish(photo, false, new OnPublishListener() {
-
-                                            @Override
-                                            public void onException(Throwable throwable) {
-                                                if (progressDialog != null) {
-                                                    progressDialog.dismiss();
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onFail(String reason) {
-                                                if (progressDialog != null) {
-                                                    progressDialog.dismiss();
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onThinking() {
-                                                progressDialog.show();
-                                            }
-
-                                            @Override
-                                            public void onComplete(String response) {
-                                                if (progressDialog != null) {
-                                                    progressDialog.dismiss();
-                                                }
-                                            }
-                                        });
-                                    }
-                                } else {
-                                    _socialController.shareWithFaceBook(ShowImageActivity.this,
-                                            "",
-                                            "",
-                                            image_Url,
-                                            image_Url);
-                                }
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
                             }
-                        })
-                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .setCancelable(false)
-                        .create().show();
+                        });
+                        builder.create().show();
+                    }
+                } else {
+                    Toast.makeText(ShowImageActivity.this, "Image can not be found", Toast.LENGTH_LONG).show();
+//            _socialController.shareWithFaceBook(ShowImageActivity.this,
+//                    "",
+//                    "",
+//                    image_Url,
+//                    image_Url);
+                }
             }
         });
     }

@@ -6,6 +6,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +14,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -160,46 +162,55 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
                                     .build();
                             SimpleFacebook.getInstance().publish(photo, true, null);
                         } else {
-                            Privacy privacy = new Privacy.Builder().setPrivacySettings(Privacy.PrivacySettings.ALL_FRIENDS).build();
-                            Photo photo = new Photo.Builder()
-                                    .setImage(BitmapFactory.decodeFile(purposeFile.getPath()))
-                                    .setPrivacy(privacy)
-                                    .build();
-                            SimpleFacebook.getInstance().publish(photo, false, new OnPublishListener() {
-
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setTitle("Share Image").setMessage("You can not share without Facebook App").setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                 @Override
-                                public void onException(Throwable throwable) {
-                                    if (progressDialog != null) {
-                                        progressDialog.dismiss();
-                                    }
-                                }
-
-                                @Override
-                                public void onFail(String reason) {
-                                    if (progressDialog != null) {
-                                        progressDialog.dismiss();
-                                    }
-                                }
-
-                                @Override
-                                public void onThinking() {
-                                    progressDialog.show();
-                                }
-
-                                @Override
-                                public void onComplete(String response) {
-                                    if (progressDialog != null) {
-                                        progressDialog.dismiss();
-                                    }
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
                                 }
                             });
+                            builder.create().show();
+//                            Privacy privacy = new Privacy.Builder().setPrivacySettings(Privacy.PrivacySettings.ALL_FRIENDS).build();
+//                            Photo photo = new Photo.Builder()
+//                                    .setImage(BitmapFactory.decodeFile(purposeFile.getPath()))
+//                                    .setPrivacy(privacy)
+//                                    .build();
+//                            SimpleFacebook.getInstance().publish(photo, false, new OnPublishListener() {
+//
+//                                @Override
+//                                public void onException(Throwable throwable) {
+//                                    if (progressDialog != null) {
+//                                        progressDialog.dismiss();
+//                                    }
+//                                }
+//
+//                                @Override
+//                                public void onFail(String reason) {
+//                                    if (progressDialog != null) {
+//                                        progressDialog.dismiss();
+//                                    }
+//                                }
+//
+//                                @Override
+//                                public void onThinking() {
+//                                    progressDialog.show();
+//                                }
+//
+//                                @Override
+//                                public void onComplete(String response) {
+//                                    if (progressDialog != null) {
+//                                        progressDialog.dismiss();
+//                                    }
+//                                }
+//                            });
                         }
                     } else {
-                        _socialController.shareWithFaceBook(ViewImageFragment.this,
-                                "",
-                                "",
-                                userImages.get(position).getImageUrl(),
-                                userImages.get(position).getImageUrl());
+                        Toast.makeText(getActivity(), "Image can not be found", Toast.LENGTH_LONG).show();
+//                        _socialController.shareWithFaceBook(ViewImageFragment.this,
+//                                "",
+//                                "",
+//                                userImages.get(position).getImageUrl(),
+//                                userImages.get(position).getImageUrl());
                     }
                 }
                 break;
