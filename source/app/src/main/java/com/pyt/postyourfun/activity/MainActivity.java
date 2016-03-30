@@ -53,19 +53,10 @@ public class MainActivity extends FragmentActivity {
 
             @Override
             public void onPageSelected(int arg0) {
-                // TODO Auto-generated method stub
-                if (arg0 == 0) {
-                    RatingFragment frag = (RatingFragment) adapter.getItem(arg0);
-                    frag.onResume();
-                } else if (arg0 == 2) {
-                    ViewImageFragment fragment = (ViewImageFragment) adapter.getItem(arg0);
-                    fragment.onResume();
-                }
             }
 
             @Override
             public void onPageScrolled(int arg0, float arg1, int arg2) {
-                // TODO Auto-generated method stub
                 if (arg0 == 0) {
                     RatingFragment frag = (RatingFragment) adapter.getItem(arg0);
                     frag.onResume();

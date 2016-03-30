@@ -9,11 +9,9 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import com.pyt.postyourfun.R;
-import com.pyt.postyourfun.Utils.Image.BitmapImage;
 import com.pyt.postyourfun.Utils.Image.SmartImageView;
-import com.pyt.postyourfun.Utils.UsersImageModel;
+import com.pyt.postyourfun.dynamoDBClass.UserImageMapper;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,11 +21,11 @@ import java.util.List;
 public class GridViewImageAdapter extends BaseAdapter {
 
     private Context context;
-    private ArrayList<UsersImageModel> image_grid;
+    private List<UserImageMapper> image_grid;
     private GridViewImageInterface callback;
     private List<Integer> selectedPosition;
 
-    public GridViewImageAdapter(Context context, ArrayList<UsersImageModel> images, GridViewImageInterface callback) {
+    public GridViewImageAdapter(Context context, List<UserImageMapper> images, GridViewImageInterface callback) {
         this.context = context;
         this.image_grid = images;
         this.callback = callback;
@@ -48,7 +46,7 @@ public class GridViewImageAdapter extends BaseAdapter {
     }
 
     @Override
-    public UsersImageModel getItem(int position) {
+    public UserImageMapper getItem(int position) {
         return this.image_grid.get(position);
     }
 
@@ -79,13 +77,8 @@ public class GridViewImageAdapter extends BaseAdapter {
                 notifyDataSetChanged();
             }
         });
-
-        File imageFile = new File(getItem(position).getLocalPath());
-        if (imageFile.exists())
-            imageView.setImage(new BitmapImage(imageFile, 500, 500));
-        else
-            imageView.setImageUrl(getItem(position).getThumbImageUrl());
-
+        UserImageMapper mapper = getItem(position);
+        imageView.setImageUrl(mapper.getImageThumbUrl());
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

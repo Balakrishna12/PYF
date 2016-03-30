@@ -221,12 +221,12 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
     }
 
     @Override
-    public void onSuccessImageDownload(Boolean isSuccess, String image_Url, String path) {
+    public void onSuccessImageDownload(Boolean isSuccess, String image_Url, String path, String thumbUrl) {
         String transactionId = createGUID();
         String imageId = image_Url.substring(image_Url.lastIndexOf("/") + 1, image_Url.length() - 4);
         String dateTime = getCurrentTimDate(System.currentTimeMillis(), "dd.MM.yyyy");
 
-        new InsertTransaction().execute(transactionId, userId, imageId, image_Url, dateTime);
+        new InsertTransaction().execute(transactionId, userId, imageId, image_Url, dateTime, thumbUrl);
 
         UsersImageModel imageModel = new UsersImageModel();
         imageModel.setTransactionId(transactionId);
@@ -394,7 +394,7 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
         @Override
         protected Void doInBackground(String... params) {
             UserImageDBmanager.sharedInstance(getActivity());
-            UserImageDBmanager.insertUserImage(params[0], params[1], params[2], params[3], params[4]);
+            UserImageDBmanager.insertUserImage(params[0], params[1], params[2], params[3], params[4], params[5]);
             return null;
         }
 

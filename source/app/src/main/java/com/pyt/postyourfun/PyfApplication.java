@@ -18,7 +18,6 @@ public class PyfApplication extends MultiDexApplication {
         super.onCreate();
         SimpleFacebookConfiguration configuration = new SimpleFacebookConfiguration.Builder()
                 .setAppId(getString(R.string.app_name))
-//                .setNamespace("sromkuapp")
                 .setPermissions(permissions)
                 .build();
         SimpleFacebook.setConfiguration(configuration);

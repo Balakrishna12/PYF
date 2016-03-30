@@ -4,17 +4,19 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -28,23 +30,35 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.facebook.share.model.SharePhotoContent;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.share.Sharer;
+import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
+import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.pyt.postyourfun.Adapter.GridViewImageAdapter;
 import com.pyt.postyourfun.Adapter.GridViewImageInterface;
 import com.pyt.postyourfun.R;
 import com.pyt.postyourfun.Utils.UserImageSQLiteHelper;
-import com.pyt.postyourfun.Utils.UsersImageModel;
 import com.pyt.postyourfun.constants.Constants;
+import com.pyt.postyourfun.constants.PostYourFunApp;
+import com.pyt.postyourfun.dynamoDBClass.ParkSocialMediaMapper;
+import com.pyt.postyourfun.dynamoDBClass.UserImageMapper;
+import com.pyt.postyourfun.dynamoDBManager.tableTasks.ParkSocialMediaDBManager;
+import com.pyt.postyourfun.dynamoDBManager.tableTasks.UserImageDBmanager;
 import com.pyt.postyourfun.social.SocialController;
 import com.pyt.postyourfun.social.SocialControllerInterface;
-import com.sromku.simple.fb.SimpleFacebook;
-import com.sromku.simple.fb.entities.Photo;
-import com.sromku.simple.fb.entities.Privacy;
-import com.sromku.simple.fb.listeners.OnPublishListener;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ViewImageFragment extends Fragment implements View.OnClickListener, GridViewImageInterface, SocialControllerInterface {
 
@@ -55,11 +69,12 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
 
     private Animator mCurrentAnimator;
     private int mShortAnimationDuration;
+    private final CallbackManager mCallbackManager = CallbackManager.Factory.create();
 
     private Context context;
     private GridViewImageAdapter gridViewImageAdapter;
     private UserImageSQLiteHelper imageSQLiteHelper;
-    private ArrayList<UsersImageModel> userImages = new ArrayList<>();
+    private ArrayList<UserImageMapper> userImages = new ArrayList<>();
 
     private int windowWidth;
     private int windowHeight;
@@ -85,6 +100,23 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        initImageLoader(activity);
+    }
+
+    public static void initImageLoader(Context context) {
+        ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(context);
+        config.threadPriority(Thread.NORM_PRIORITY - 2);
+        config.denyCacheImageMultipleSizesInMemory();
+        config.diskCacheFileNameGenerator(new Md5FileNameGenerator());
+        config.diskCacheSize(50 * 1024 * 1024); // 50 MiB
+        config.diskCache(new UnlimitedDiskCache(context.getCacheDir()));
+        config.tasksProcessingOrder(QueueProcessingType.LIFO);
+        ImageLoader.getInstance().init(config.build());
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_view_image, container, false);
@@ -106,7 +138,6 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
         display.getSize(size);
         windowWidth = size.x;
         windowHeight = size.y;
-        initView();
 
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setMessage("Loading data...");
@@ -122,14 +153,14 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
         if (_socialController != null) {
             _socialController.onResume();
         }
-
-        initView();
+        getUserImages();
         Log.d("View Fragment: ", "Resumed");
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
         if (_socialController != null) {
             _socialController.onActivityResult(requestCode, resultCode, data);
         }
@@ -152,84 +183,74 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
                     Toast.makeText(getActivity(), "Please select image", Toast.LENGTH_SHORT).show();
                 } else {
                     int position = gridViewImageAdapter.getSelectedPosition().get(0);
-                    SharePhotoContent content = new SharePhotoContent.Builder().build();
-                    ShareDialog shareDialog = new ShareDialog(getActivity());
-                    File purposeFile = new File(userImages.get(position).getLocalPath());
-                    if (purposeFile.exists()) {
-                        if (shareDialog.canShow(content)) {
-                            Photo photo = new Photo.Builder()
-                                    .setImage(BitmapFactory.decodeFile(purposeFile.getPath()))
-                                    .build();
-                            SimpleFacebook.getInstance().publish(photo, true, null);
-                        } else {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            builder.setTitle("Share Image").setMessage("You can not share without Facebook App").setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    dialogInterface.dismiss();
-                                }
-                            });
-                            builder.create().show();
-//                            Privacy privacy = new Privacy.Builder().setPrivacySettings(Privacy.PrivacySettings.ALL_FRIENDS).build();
-//                            Photo photo = new Photo.Builder()
-//                                    .setImage(BitmapFactory.decodeFile(purposeFile.getPath()))
-//                                    .setPrivacy(privacy)
-//                                    .build();
-//                            SimpleFacebook.getInstance().publish(photo, false, new OnPublishListener() {
-//
-//                                @Override
-//                                public void onException(Throwable throwable) {
-//                                    if (progressDialog != null) {
-//                                        progressDialog.dismiss();
-//                                    }
-//                                }
-//
-//                                @Override
-//                                public void onFail(String reason) {
-//                                    if (progressDialog != null) {
-//                                        progressDialog.dismiss();
-//                                    }
-//                                }
-//
-//                                @Override
-//                                public void onThinking() {
-//                                    progressDialog.show();
-//                                }
-//
-//                                @Override
-//                                public void onComplete(String response) {
-//                                    if (progressDialog != null) {
-//                                        progressDialog.dismiss();
-//                                    }
-//                                }
-//                            });
-                        }
-                    } else {
-                        Toast.makeText(getActivity(), "Image can not be found", Toast.LENGTH_LONG).show();
-//                        _socialController.shareWithFaceBook(ViewImageFragment.this,
-//                                "",
-//                                "",
-//                                userImages.get(position).getImageUrl(),
-//                                userImages.get(position).getImageUrl());
-                    }
+                    UserImageMapper mapper = userImages.get(position);
+                    new GetParkSocialMediaInfo().execute(PostYourFunApp.all_parks.get(0).getParkId(), mapper.getImageUrl());
                 }
                 break;
         }
     }
 
-    public void initView() {
-        userImages.clear();
-        userImages.addAll(imageSQLiteHelper.getAllImages());
-        gridViewImageAdapter.notifyDataSetChanged();
+    public void getUserImages() {
+        SharedPreferences _sharedPreference = getActivity().getSharedPreferences("user_info", 0);
+        new GettingUserImages().execute(_sharedPreference.getString("user_id", ""));
     }
 
-    private void zoomImageFromThumb(final View thumbView, String imageId) {
+    protected class GettingUserImages extends AsyncTask<String, Void, List<UserImageMapper>> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+        }
+
+        @Override
+        protected List<UserImageMapper> doInBackground(String... params) {
+            UserImageDBmanager.sharedInstance(getActivity());
+            return UserImageDBmanager.getUserImages(params[0]);
+        }
+
+        @Override
+        protected void onPostExecute(List<UserImageMapper> mappers) {
+            super.onPostExecute(mappers);
+            progressDialog.dismiss();
+            userImages.clear();
+            userImages.addAll(mappers);
+            gridViewImageAdapter.notifyDataSetChanged();
+        }
+    }
+
+
+    private void zoomImageFromThumb(final View thumbView, String imageUrl) {
 
         if (mCurrentAnimator != null) {
             mCurrentAnimator.cancel();
         }
 
-        loadImage(imageId);
+        DisplayImageOptions options = new DisplayImageOptions.Builder()
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .build();
+        ImageLoader.getInstance().displayImage(imageUrl, expandedImageView, options, new ImageLoadingListener() {
+            @Override
+            public void onLoadingStarted(String imageUri, View view) {
+                progressDialog.show();
+            }
+
+            @Override
+            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void onLoadingCancelled(String imageUri, View view) {
+                progressDialog.dismiss();
+            }
+        });
 
         final Rect startBounds = new Rect();
         final Rect finalBounds = new Rect();
@@ -324,7 +345,7 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
 
     @Override
     public void onClickedImage(View v, int index) {
-        zoomImageFromThumb(v, userImages.get(index).getImageId());
+        zoomImageFromThumb(v, userImages.get(index).getImageUrl());
 //        loadImage(userImages.get(index).getImageId());
     }
 
@@ -370,5 +391,45 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
     @Override
     public void onFailure(int type, int action) {
 
+    }
+
+    protected class GetParkSocialMediaInfo extends AsyncTask<String, Void, ParkSocialMediaMapper> {
+        private String imageUrl;
+
+        @Override
+        protected ParkSocialMediaMapper doInBackground(String... params) {
+            ParkSocialMediaDBManager.sharedInstance(getActivity());
+            ParkSocialMediaMapper result = ParkSocialMediaDBManager.get_Park_Social_Media(params[0]);
+            imageUrl = params[1];
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(ParkSocialMediaMapper parkSocialMediaMapper) {
+            super.onPostExecute(parkSocialMediaMapper);
+            ShareLinkContent.Builder shareLinkContent = new ShareLinkContent.Builder()
+                    .setContentTitle(getString(R.string.post_your_fun_image_share))
+                    .setImageUrl(Uri.parse(imageUrl))
+                    .setPlaceId(parkSocialMediaMapper.getFacebook())
+                    .setContentUrl(Uri.parse(imageUrl));
+            ShareLinkContent linkContent = shareLinkContent.build();
+            ShareDialog shareDialog = new ShareDialog(getActivity());
+            if (shareDialog.canShow(linkContent)) {
+                shareDialog.registerCallback(mCallbackManager, new FacebookCallback<Sharer.Result>() {
+                    @Override
+                    public void onSuccess(Sharer.Result result) {
+                    }
+
+                    @Override
+                    public void onCancel() {
+                    }
+
+                    @Override
+                    public void onError(FacebookException e) {
+                    }
+                });
+                shareDialog.show(linkContent);
+            }
+        }
     }
 }

@@ -18,4 +18,5 @@
 	<string name="facebook_login_success">Successfully logged in with facebook</string>
 	<string name="permission_not_granted">Unable to perform selected action because permissions were not granted.</string>
 	<string name="title_activity_login_">Login_Activity</string>
+	<string name="post_your_fun_image_share">Post Your Fun Image Share</string>
 </resources>

@@ -145,7 +145,7 @@ public class ImageDownloadManager {
                         output.write(data, 0, count);
                     }
                     if (callback != null) {
-                        callback.onSuccessImageDownload(true, imageUrl, purposeFile.getPath());
+                        callback.onSuccessImageDownload(true, imageUrl, purposeFile.getPath(), "");
                         return null;
                     }
                 } catch (FileNotFoundException e) {
@@ -161,7 +161,7 @@ public class ImageDownloadManager {
                     }
                 }
                 if (callback != null) {
-                    callback.onSuccessImageDownload(false, "", "");
+                    callback.onSuccessImageDownload(false, "", "", "");
                     return null;
                 }
             } catch (Exception e) {

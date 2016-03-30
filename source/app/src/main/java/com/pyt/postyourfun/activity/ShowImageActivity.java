@@ -3,13 +3,11 @@ package com.pyt.postyourfun.activity;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
@@ -18,7 +16,11 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.facebook.share.model.SharePhotoContent;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.share.Sharer;
+import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
@@ -26,22 +28,22 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.pyt.postyourfun.Adapter.GridViewShowAllAdapter;
-import com.pyt.postyourfun.Image.ImageDownloadManager;
 import com.pyt.postyourfun.Image.ImageDownloadMangerInterface;
 import com.pyt.postyourfun.Payment.PaymentController;
 import com.pyt.postyourfun.R;
 import com.pyt.postyourfun.Utils.UserImageSQLiteHelper;
 import com.pyt.postyourfun.Utils.UsersImageModel;
 import com.pyt.postyourfun.constants.Constants;
+import com.pyt.postyourfun.constants.PostYourFunApp;
 import com.pyt.postyourfun.dynamoDBClass.ImageMapper;
+import com.pyt.postyourfun.dynamoDBClass.ParkSocialMediaMapper;
 import com.pyt.postyourfun.dynamoDBManager.tableTasks.ImageDBManager;
+import com.pyt.postyourfun.dynamoDBManager.tableTasks.ParkSocialMediaDBManager;
 import com.pyt.postyourfun.dynamoDBManager.tableTasks.UserImageDBmanager;
 import com.pyt.postyourfun.social.SocialController;
 import com.pyt.postyourfun.social.SocialControllerInterface;
 import com.sromku.simple.fb.SimpleFacebook;
-import com.sromku.simple.fb.entities.Photo;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,12 +68,16 @@ public class ShowImageActivity extends Activity implements ImageDownloadMangerIn
     private String thumbnailSelect = "";
     private SimpleFacebook simpleFacebook;
     private SocialController _socialController = null;
+    private final CallbackManager mCallbackManager = CallbackManager.Factory.create();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_all_image);
+
+        PaymentController.sharedInstance().startPaypalService(this);
+
         _socialController = SocialController.sharedInstance(this, this);
 
         _sharedPreference = getSharedPreferences("user_info", 0);
@@ -96,9 +102,10 @@ public class ShowImageActivity extends Activity implements ImageDownloadMangerIn
                 ImageWrapper wrapper = (ImageWrapper) v.getTag();
                 if (wrapper != null && !TextUtils.isEmpty(wrapper.getFull_image_url())) {
                     if (getIntent().getBooleanExtra(EXTRA_SOLD, false)) {
-                        PaymentController.sharedInstance().buyImage(ShowImageActivity.this, 8.0f, "EUR", wrapper.getFull_image_url(), ShowImageActivity.this);
+                        PaymentController.sharedInstance().buyImage(ShowImageActivity.this, 8.0f, "EUR", wrapper.getFull_image_url(), wrapper.getThumbnail_image_url(), ShowImageActivity.this);
                     } else {
-                        ImageDownloadManager.getSharedInstance().downloadImage(wrapper.getFull_image_url(), ShowImageActivity.this, ShowImageActivity.this);
+                        buyImageRequest(userId, wrapper.getFull_image_url(), wrapper.getThumbnail_image_url());
+//                        ImageDownloadManager.getSharedInstance().downloadImage(wrapper.getFull_image_url(), ShowImageActivity.this, ShowImageActivity.this);
                     }
                 } else {
                     Toast.makeText(ShowImageActivity.this, "Please get image first.", Toast.LENGTH_SHORT).show();
@@ -122,60 +129,33 @@ public class ShowImageActivity extends Activity implements ImageDownloadMangerIn
 
 
     @Override
-    public void onSuccessImageDownload(Boolean isSuccess, final String image_Url, final String path) {
+    public void onSuccessImageDownload(Boolean isSuccess, final String imageUrl, String thumbUrl, final String path) {
+        buyImageRequest(userId, imageUrl, thumbUrl);
+    }
+
+    private void buyImageRequest(String userId, String imageUrl, String thumbUrl) {
         String transactionId = createGUID();
-        String imageId = image_Url.substring(image_Url.lastIndexOf("/") + 1, image_Url.length() - 4);
+        String imageId = imageUrl.substring(imageUrl.lastIndexOf("/") + 1, imageUrl.length() - 4);
         String dateTime = getCurrentTimDate(System.currentTimeMillis(), "dd.MM.yyyy");
 
-        new InsertTransaction().execute(transactionId, userId, imageId, image_Url, dateTime);
+        new InsertTransaction().execute(transactionId, userId, imageId, imageUrl, dateTime, thumbUrl);
 
         UsersImageModel imageModel = new UsersImageModel();
         imageModel.setTransactionId(transactionId);
         imageModel.setUserId(userId);
         imageModel.setImageId(imageId);
-        imageModel.setImageUrl(image_Url);
+        imageModel.setImageUrl(imageUrl);
         imageModel.setDateTime(dateTime);
-        imageModel.setThumbImageUrl(thumbnailSelect);
-        imageModel.setLocalPath(path);
+        imageModel.setThumbImageUrl(thumbUrl);
+        imageModel.setLocalPath("");
         dbHelper.addImage(imageModel);
 
-        shareImage(image_Url, path);
+        shareImage(imageUrl);
     }
 
 
-    private void shareImage(final String image_Url, final String path) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ShareDialog shareDialog = new ShareDialog(ShowImageActivity.this);
-                SharePhotoContent content = new SharePhotoContent.Builder().build();
-                File purposeFile = new File(path);
-                if (purposeFile.exists()) {
-                    if (shareDialog.canShow(content)) {
-                        Photo photo = new Photo.Builder()
-                                .setImage(BitmapFactory.decodeFile(purposeFile.getPath()))
-                                .build();
-                        SimpleFacebook.getInstance().publish(photo, true, null);
-                    } else {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(ShowImageActivity.this);
-                        builder.setTitle("Share Image").setMessage("You can not share without Facebook App").setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.dismiss();
-                            }
-                        });
-                        builder.create().show();
-                    }
-                } else {
-                    Toast.makeText(ShowImageActivity.this, "Image can not be found", Toast.LENGTH_LONG).show();
-//            _socialController.shareWithFaceBook(ShowImageActivity.this,
-//                    "",
-//                    "",
-//                    image_Url,
-//                    image_Url);
-                }
-            }
-        });
+    private void shareImage(final String imageUrl) {
+        new GetParkSocialMediaInfo().execute(PostYourFunApp.all_parks.get(0).getParkId(), imageUrl);
     }
 
     public static void initImageLoader(Context context) {
@@ -211,6 +191,8 @@ public class ShowImageActivity extends Activity implements ImageDownloadMangerIn
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        PaymentController.sharedInstance().activityResult(requestCode, resultCode, data, this);
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
         simpleFacebook.onActivityResult(requestCode, resultCode, data);
         if (_socialController != null)
             _socialController.onActivityResult(requestCode, resultCode, data);
@@ -225,6 +207,7 @@ public class ShowImageActivity extends Activity implements ImageDownloadMangerIn
     @Override
     public void onDestroy() {
         super.onDestroy();
+        PaymentController.sharedInstance().stopPaypalService(this);
         if (_socialController != null) {
             _socialController.onDestroy();
         }
@@ -381,13 +364,53 @@ public class ShowImageActivity extends Activity implements ImageDownloadMangerIn
         @Override
         protected Void doInBackground(String... params) {
             UserImageDBmanager.sharedInstance(ShowImageActivity.this);
-            UserImageDBmanager.insertUserImage(params[0], params[1], params[2], params[3], params[4]);
+            UserImageDBmanager.insertUserImage(params[0], params[1], params[2], params[3], params[4], params[5]);
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+        }
+    }
+
+    protected class GetParkSocialMediaInfo extends AsyncTask<String, Void, ParkSocialMediaMapper> {
+        private String imageUrl;
+
+        @Override
+        protected ParkSocialMediaMapper doInBackground(String... params) {
+            ParkSocialMediaDBManager.sharedInstance(ShowImageActivity.this);
+            ParkSocialMediaMapper result = ParkSocialMediaDBManager.get_Park_Social_Media(params[0]);
+            imageUrl = params[1];
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(ParkSocialMediaMapper parkSocialMediaMapper) {
+            super.onPostExecute(parkSocialMediaMapper);
+            ShareLinkContent.Builder shareLinkContent = new ShareLinkContent.Builder()
+                    .setContentTitle(getString(R.string.post_your_fun_image_share))
+                    .setImageUrl(Uri.parse(imageUrl))
+                    .setPlaceId(parkSocialMediaMapper.getFacebook())
+                    .setContentUrl(Uri.parse(imageUrl));
+            ShareLinkContent linkContent = shareLinkContent.build();
+            ShareDialog shareDialog = new ShareDialog(ShowImageActivity.this);
+            if (shareDialog.canShow(linkContent)) {
+                shareDialog.registerCallback(mCallbackManager, new FacebookCallback<Sharer.Result>() {
+                    @Override
+                    public void onSuccess(Sharer.Result result) {
+                    }
+
+                    @Override
+                    public void onCancel() {
+                    }
+
+                    @Override
+                    public void onError(FacebookException e) {
+                    }
+                });
+                shareDialog.show(linkContent);
+            }
         }
     }
 }
