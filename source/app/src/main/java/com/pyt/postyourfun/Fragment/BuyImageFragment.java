@@ -1,11 +1,9 @@
 package com.pyt.postyourfun.Fragment;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,7 +42,7 @@ import java.util.List;
 import static com.pyt.postyourfun.constants.PostYourFunApp.createGUID;
 import static com.pyt.postyourfun.constants.PostYourFunApp.getCurrentTimDate;
 
-public class BuyImageFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener, ImageDownloadMangerInterface {
+public class BuyImageFragment extends BaseFragment implements View.OnClickListener, AdapterView.OnItemSelectedListener, ImageDownloadMangerInterface {
 
     private Spinner park_spinner, ride_spinner;
     private Button getImagesButton;
@@ -58,7 +56,6 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
 
     private String get_image_name;
 
-    ProgressDialog progressDialog;
     private String full_image_url = "";
     private String thumbnail_image_url = "";
     private String userId;
@@ -98,10 +95,6 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
 
         park_spinner.setOnItemSelectedListener(this);
         ride_spinner.setOnItemSelectedListener(this);
-
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage("Loading data...");
-        progressDialog.setCancelable(false);
         return view;
     }
 
@@ -109,7 +102,7 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
     public void onResume() {
         super.onResume();
         if (PostYourFunApp.all_rides.size() == 0) {
-            progressDialog.show();
+            showProgressDialog();
             new GetAllPark().execute();
             new GetAllRides().execute();
         } else {
@@ -344,9 +337,7 @@ public class BuyImageFragment extends Fragment implements View.OnClickListener, 
             ride_name_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             ride_spinner.setAdapter(ride_name_adapter);
 
-            if (progressDialog != null) {
-                progressDialog.dismiss();
-            }
+            dismissProgressDialog();
         }
     }
 

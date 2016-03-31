@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +31,7 @@ import com.pyt.postyourfun.social.SocialControllerInterface;
 
 import java.util.ArrayList;
 
-public class RatingFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener, SocialControllerInterface {
+public class RatingFragment extends BaseFragment implements View.OnClickListener, AdapterView.OnItemSelectedListener, SocialControllerInterface {
 
     private Spinner theme_selector, ride_selector;
     private EditText rate_text;

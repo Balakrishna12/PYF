@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -19,7 +18,7 @@ import com.pyt.postyourfun.R;
 import com.pyt.postyourfun.Utils.PagerSlidingTabStrip;
 import com.sromku.simple.fb.SimpleFacebook;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends BaseActivity {
 
     private ViewPager pager;
     private PagerSlidingTabStrip tabs;

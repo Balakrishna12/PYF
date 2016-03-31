@@ -1,7 +1,5 @@
 package com.pyt.postyourfun.activity;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -53,12 +51,11 @@ import static com.pyt.postyourfun.constants.PostYourFunApp.getCurrentTimDate;
 /**
  * Created by r8tin on 2/1/16.
  */
-public class ShowImageActivity extends Activity implements ImageDownloadMangerInterface, SocialControllerInterface {
+public class ShowImageActivity extends BaseActivity implements ImageDownloadMangerInterface, SocialControllerInterface {
 
     public static final String EXTRA_DEVICE_ID = "extra_device_id";
     public static final String EXTRA_SOLD = "extra_sold";
 
-    private ProgressDialog progressDialog;
     private GridView listView;
     private ImageView imageView;
     private Button buyButton;
@@ -169,25 +166,6 @@ public class ShowImageActivity extends Activity implements ImageDownloadMangerIn
         ImageLoader.getInstance().init(config.build());
     }
 
-    private void showProgressBur() {
-        try {
-            if (progressDialog == null) progressDialog = new ProgressDialog(ShowImageActivity.this);
-            progressDialog.setMessage("Loading data...");
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void hideProgressBur() {
-        try {
-            if (progressDialog != null) progressDialog.dismiss();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -258,7 +236,7 @@ public class ShowImageActivity extends Activity implements ImageDownloadMangerIn
         @Override
         protected void onPostExecute(List<ImageMapper> imageMappers) {
             super.onPostExecute(imageMappers);
-            hideProgressBur();
+            dismissProgressDialog();
             if (imageMappers != null && !imageMappers.isEmpty()) {
                 List<ImageWrapper> imageWrappers = new ArrayList<>();
                 for (ImageMapper imageMapper : imageMappers)

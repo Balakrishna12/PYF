@@ -1,23 +1,16 @@
 package com.pyt.postyourfun.activity;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 
-import com.facebook.login.LoginManager;
 import com.pyt.postyourfun.R;
 import com.pyt.postyourfun.social.SocialController;
 import com.pyt.postyourfun.social.SocialControllerInterface;
 
-import java.util.Arrays;
-
-public class Login_Activity extends Activity implements SocialControllerInterface, View.OnClickListener {
+public class Login_Activity extends BaseActivity implements SocialControllerInterface, View.OnClickListener {
 
 	SocialController _socialController = null;
 

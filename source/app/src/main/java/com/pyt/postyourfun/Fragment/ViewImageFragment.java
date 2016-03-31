@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,7 +15,6 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -60,7 +58,7 @@ import com.pyt.postyourfun.social.SocialControllerInterface;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ViewImageFragment extends Fragment implements View.OnClickListener, GridViewImageInterface, SocialControllerInterface {
+public class ViewImageFragment extends BaseFragment implements View.OnClickListener, GridViewImageInterface, SocialControllerInterface {
 
     private GridView imageGrid;
     private Button btnShareFriend;
@@ -78,7 +76,6 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
 
     private int windowWidth;
     private int windowHeight;
-    private ProgressDialog progressDialog;
 
     private SocialController _socialController = null;
 
@@ -139,10 +136,6 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
         windowWidth = size.x;
         windowHeight = size.y;
 
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage("Loading data...");
-        progressDialog.setCancelable(false);
-
         Log.d("View Fragment: ", "View Created");
         return view;
     }
@@ -200,7 +193,7 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog.show();
+            showProgressDialog();
         }
 
         @Override
@@ -212,7 +205,7 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
         @Override
         protected void onPostExecute(List<UserImageMapper> mappers) {
             super.onPostExecute(mappers);
-            progressDialog.dismiss();
+            dismissProgressDialog();
             userImages.clear();
             userImages.addAll(mappers);
             gridViewImageAdapter.notifyDataSetChanged();
@@ -233,22 +226,22 @@ public class ViewImageFragment extends Fragment implements View.OnClickListener,
         ImageLoader.getInstance().displayImage(imageUrl, expandedImageView, options, new ImageLoadingListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
-                progressDialog.show();
+                showProgressDialog();
             }
 
             @Override
             public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                progressDialog.dismiss();
+                dismissProgressDialog();
             }
 
             @Override
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                progressDialog.dismiss();
+                dismissProgressDialog();
             }
 
             @Override
             public void onLoadingCancelled(String imageUri, View view) {
-                progressDialog.dismiss();
+                dismissProgressDialog();
             }
         });
 
