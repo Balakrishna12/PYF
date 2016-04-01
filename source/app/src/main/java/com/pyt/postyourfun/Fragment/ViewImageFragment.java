@@ -206,9 +206,11 @@ public class ViewImageFragment extends BaseFragment implements View.OnClickListe
         protected void onPostExecute(List<UserImageMapper> mappers) {
             super.onPostExecute(mappers);
             dismissProgressDialog();
-            userImages.clear();
-            userImages.addAll(mappers);
-            gridViewImageAdapter.notifyDataSetChanged();
+            if (mappers != null && !mappers.isEmpty()) {
+                userImages.clear();
+                userImages.addAll(mappers);
+                gridViewImageAdapter.notifyDataSetChanged();
+            }
         }
     }
 
