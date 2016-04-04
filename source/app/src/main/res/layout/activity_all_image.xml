@@ -34,7 +34,7 @@
 		android:background="@xml/button_background"
 		android:paddingLeft="40dp"
 		android:paddingRight="40dp"
-		android:text="Get image"
+		android:text="Download and share"
 		android:textColor="@android:color/white"
 		android:visibility="gone" />
 </RelativeLayout>
