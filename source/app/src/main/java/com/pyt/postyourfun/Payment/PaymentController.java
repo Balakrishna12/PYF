@@ -11,6 +11,7 @@ import com.paypal.android.sdk.payments.PayPalPayment;
 import com.paypal.android.sdk.payments.PayPalService;
 import com.paypal.android.sdk.payments.PaymentActivity;
 import com.paypal.android.sdk.payments.PaymentConfirmation;
+import com.pyt.postyourfun.Image.ImageDownloadManager;
 import com.pyt.postyourfun.Image.ImageDownloadMangerInterface;
 import com.pyt.postyourfun.constants.Constants;
 
@@ -89,9 +90,7 @@ public class PaymentController {
 //                     TODO: send 'confirm' to your server for verification.
 //                    see https://developer.paypal.com/webapps/developer/docs/integration/mobile/verify-mobile-payment/
 //                    for more details.
-//                    ImageDownloadManager.getSharedInstance().downloadImage(imageUrl, context, callback);
-                    if (callback != null)
-                        callback.onSuccessImageDownload(true, imageUrl, "", thumbUrl);
+                    ImageDownloadManager.getSharedInstance().downloadImage(imageUrl, thumbUrl, context, callback);
                     return true;
                 } catch (JSONException e) {
                     e.printStackTrace();

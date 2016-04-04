@@ -1,11 +1,14 @@
 package com.pyt.postyourfun.activity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
@@ -19,6 +22,7 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.share.Sharer;
 import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.model.SharePhotoContent;
 import com.facebook.share.widget.ShareDialog;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
@@ -26,13 +30,13 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.pyt.postyourfun.Adapter.GridViewShowAllAdapter;
+import com.pyt.postyourfun.Image.ImageDownloadManager;
 import com.pyt.postyourfun.Image.ImageDownloadMangerInterface;
 import com.pyt.postyourfun.Payment.PaymentController;
 import com.pyt.postyourfun.R;
 import com.pyt.postyourfun.Utils.UserImageSQLiteHelper;
 import com.pyt.postyourfun.Utils.UsersImageModel;
 import com.pyt.postyourfun.constants.Constants;
-import com.pyt.postyourfun.constants.PostYourFunApp;
 import com.pyt.postyourfun.dynamoDBClass.ImageMapper;
 import com.pyt.postyourfun.dynamoDBClass.ParkSocialMediaMapper;
 import com.pyt.postyourfun.dynamoDBManager.tableTasks.ImageDBManager;
@@ -41,7 +45,9 @@ import com.pyt.postyourfun.dynamoDBManager.tableTasks.UserImageDBmanager;
 import com.pyt.postyourfun.social.SocialController;
 import com.pyt.postyourfun.social.SocialControllerInterface;
 import com.sromku.simple.fb.SimpleFacebook;
+import com.sromku.simple.fb.entities.Photo;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,8 +107,8 @@ public class ShowImageActivity extends BaseActivity implements ImageDownloadMang
                     if (getIntent().getBooleanExtra(EXTRA_SOLD, false)) {
                         PaymentController.sharedInstance().buyImage(ShowImageActivity.this, 8.0f, "EUR", wrapper.getFull_image_url(), wrapper.getThumbnail_image_url(), ShowImageActivity.this);
                     } else {
-                        buyImageRequest(userId, wrapper.getFull_image_url(), wrapper.getThumbnail_image_url());
-//                        ImageDownloadManager.getSharedInstance().downloadImage(wrapper.getFull_image_url(), ShowImageActivity.this, ShowImageActivity.this);
+//                        buyImageRequest(userId, wrapper.getFull_image_url(), wrapper.getThumbnail_image_url());
+                        ImageDownloadManager.getSharedInstance().downloadImage(wrapper.getFull_image_url(), wrapper.getThumbnail_image_url(), ShowImageActivity.this, ShowImageActivity.this);
                     }
                 } else {
                     Toast.makeText(ShowImageActivity.this, "Please get image first.", Toast.LENGTH_SHORT).show();
@@ -127,10 +133,10 @@ public class ShowImageActivity extends BaseActivity implements ImageDownloadMang
 
     @Override
     public void onSuccessImageDownload(Boolean isSuccess, final String imageUrl, String thumbUrl, final String path) {
-        buyImageRequest(userId, imageUrl, thumbUrl);
+        buyImageRequest(userId, imageUrl, thumbUrl, path);
     }
 
-    private void buyImageRequest(String userId, String imageUrl, String thumbUrl) {
+    private void buyImageRequest(String userId, String imageUrl, String thumbUrl, String path) {
         String transactionId = createGUID();
         String imageId = imageUrl.substring(imageUrl.lastIndexOf("/") + 1, imageUrl.length() - 4);
         String dateTime = getCurrentTimDate(System.currentTimeMillis(), "dd.MM.yyyy");
@@ -144,16 +150,46 @@ public class ShowImageActivity extends BaseActivity implements ImageDownloadMang
         imageModel.setImageUrl(imageUrl);
         imageModel.setDateTime(dateTime);
         imageModel.setThumbImageUrl(thumbUrl);
-        imageModel.setLocalPath("");
+        imageModel.setLocalPath(path);
         dbHelper.addImage(imageModel);
 
-        shareImage(imageUrl);
+        shareImage(path);
     }
 
-
-    private void shareImage(final String imageUrl) {
-        new GetParkSocialMediaInfo().execute(PostYourFunApp.all_parks.get(0).getParkId(), imageUrl);
+    private void shareImage(final String path) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ShareDialog shareDialog = new ShareDialog(ShowImageActivity.this);
+                SharePhotoContent content = new SharePhotoContent.Builder().build();
+                File purposeFile = new File(path);
+                if (purposeFile.exists()) {
+                    if (shareDialog.canShow(content)) {
+                        Photo photo = new Photo.Builder()
+                                .setImage(BitmapFactory.decodeFile(purposeFile.getPath()))
+                                .build();
+                        SimpleFacebook.getInstance().publish(photo, true, null);
+                    } else {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(ShowImageActivity.this);
+                        builder.setTitle("Share Image").setMessage("You can not share without Facebook App").setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        });
+                        builder.create().show();
+                    }
+                } else {
+                    Toast.makeText(ShowImageActivity.this, "Image can not be found", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
+
+// TODO it maybe will need
+//    private void shareImage(final String imageUrl) {
+//        new GetParkSocialMediaInfo().execute(PostYourFunApp.all_parks.get(0).getParkId(), imageUrl);
+//    }
 
     public static void initImageLoader(Context context) {
         ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(context);

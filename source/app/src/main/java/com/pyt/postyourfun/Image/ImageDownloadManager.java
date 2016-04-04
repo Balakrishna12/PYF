@@ -2,7 +2,6 @@ package com.pyt.postyourfun.Image;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -32,9 +31,9 @@ public class ImageDownloadManager {
         return sharedInstance;
     }
 
-    public void downloadImage(final String imageUrl, Context context, ImageDownloadMangerInterface callback) {
+    public void downloadImage(final String imageUrl, String thumbUrl, Context context, ImageDownloadMangerInterface callback) {
         this.callback = callback;
-        new AsyncGetImageFromUrl(context, imageUrl).execute(imageUrl);
+        new AsyncGetImageFromUrl(context, imageUrl, thumbUrl).execute(imageUrl);
     }
 
     /*
@@ -80,13 +79,14 @@ public class ImageDownloadManager {
     */
     protected class AsyncGetImageFromUrl extends AsyncTask<String, String, Void> {
 
-        String imageUrl;
+        String imageUrl, thumbUrl;
         Context context;
 
         ProgressDialog mProgressDialog;
 
-        public AsyncGetImageFromUrl(Context context, String url) {
+        public AsyncGetImageFromUrl(Context context, String url, String thumbUrl) {
             this.imageUrl = url;
+            this.thumbUrl = thumbUrl;
             this.context = context;
             mProgressDialog = new ProgressDialog(this.context);
             mProgressDialog.setMessage("Downloading file...");
@@ -126,7 +126,6 @@ public class ImageDownloadManager {
                 int lenghtOfFile = conexion.getContentLength();
                 Log.d("ANDRO_ASYNC", "Length of file: " + lenghtOfFile);
                 OutputStream output = null;
-                Bitmap bitmap = null;
 
                 try {
                     String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
@@ -145,7 +144,7 @@ public class ImageDownloadManager {
                         output.write(data, 0, count);
                     }
                     if (callback != null) {
-                        callback.onSuccessImageDownload(true, imageUrl, purposeFile.getPath(), "");
+                        callback.onSuccessImageDownload(true, imageUrl, thumbUrl, purposeFile.getPath());
                         return null;
                     }
                 } catch (FileNotFoundException e) {
