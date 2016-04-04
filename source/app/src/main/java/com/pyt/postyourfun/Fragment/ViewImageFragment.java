@@ -6,6 +6,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -15,6 +16,7 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -33,6 +35,7 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.share.Sharer;
 import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.model.SharePhotoContent;
 import com.facebook.share.widget.ShareDialog;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
@@ -44,21 +47,25 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.pyt.postyourfun.Adapter.GridViewImageAdapter;
 import com.pyt.postyourfun.Adapter.GridViewImageInterface;
+import com.pyt.postyourfun.Image.ImageDownloadManager;
+import com.pyt.postyourfun.Image.ImageDownloadMangerInterface;
 import com.pyt.postyourfun.R;
 import com.pyt.postyourfun.Utils.UserImageSQLiteHelper;
 import com.pyt.postyourfun.constants.Constants;
-import com.pyt.postyourfun.constants.PostYourFunApp;
 import com.pyt.postyourfun.dynamoDBClass.ParkSocialMediaMapper;
 import com.pyt.postyourfun.dynamoDBClass.UserImageMapper;
 import com.pyt.postyourfun.dynamoDBManager.tableTasks.ParkSocialMediaDBManager;
 import com.pyt.postyourfun.dynamoDBManager.tableTasks.UserImageDBmanager;
 import com.pyt.postyourfun.social.SocialController;
 import com.pyt.postyourfun.social.SocialControllerInterface;
+import com.sromku.simple.fb.SimpleFacebook;
+import com.sromku.simple.fb.entities.Photo;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ViewImageFragment extends BaseFragment implements View.OnClickListener, GridViewImageInterface, SocialControllerInterface {
+public class ViewImageFragment extends BaseFragment implements View.OnClickListener, GridViewImageInterface, SocialControllerInterface, ImageDownloadMangerInterface {
 
     private GridView imageGrid;
     private Button btnShareFriend;
@@ -169,7 +176,6 @@ public class ViewImageFragment extends BaseFragment implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-
         switch (v.getId()) {
             case R.id.btn_shareFriends:
                 if (gridViewImageAdapter.getSelectedPosition().isEmpty()) {
@@ -177,10 +183,51 @@ public class ViewImageFragment extends BaseFragment implements View.OnClickListe
                 } else {
                     int position = gridViewImageAdapter.getSelectedPosition().get(0);
                     UserImageMapper mapper = userImages.get(position);
-                    new GetParkSocialMediaInfo().execute(PostYourFunApp.all_parks.get(0).getParkId(), mapper.getImageUrl());
+                    // TODO it maybe will need
+//                    new GetParkSocialMediaInfo().execute(PostYourFunApp.all_parks.get(0).getParkId(), mapper.getImageUrl());
+                    String fileName = mapper.getImageUrl().substring(mapper.getImageUrl().lastIndexOf("/") + 1);
+                    File purposeFile = new File(Constants.IMAGE_FULL_PATH, fileName);
+                    if (purposeFile.exists()) shareImage(purposeFile.getPath());
+                    else
+                        ImageDownloadManager.getSharedInstance().downloadImage(mapper.getImageUrl(), mapper.getImageThumbUrl(), getActivity(), this);
                 }
                 break;
         }
+    }
+
+    @Override
+    public void onSuccessImageDownload(Boolean isSuccess, String imageUrl, String thumbUrl, String path) {
+        shareImage(path);
+    }
+
+    private void shareImage(final String path) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ShareDialog shareDialog = new ShareDialog(getActivity());
+                SharePhotoContent content = new SharePhotoContent.Builder().build();
+                File purposeFile = new File(path);
+                if (purposeFile.exists()) {
+                    if (shareDialog.canShow(content)) {
+                        Photo photo = new Photo.Builder()
+                                .setImage(BitmapFactory.decodeFile(purposeFile.getPath()))
+                                .build();
+                        SimpleFacebook.getInstance().publish(photo, true, null);
+                    } else {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setTitle("Share Image").setMessage("You can not share without Facebook App").setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        });
+                        builder.create().show();
+                    }
+                } else {
+                    Toast.makeText(getActivity(), "Image can not be found", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
     public void getUserImages() {
