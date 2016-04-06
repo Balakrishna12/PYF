@@ -11,11 +11,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.pyt.postyourfun.R;
 import com.pyt.postyourfun.constants.PostYourFunApp;
@@ -34,7 +32,6 @@ import java.util.ArrayList;
 public class RatingFragment extends BaseFragment implements View.OnClickListener, AdapterView.OnItemSelectedListener, SocialControllerInterface {
 
     private Spinner theme_selector, ride_selector;
-    private EditText rate_text;
     private Button fb_share_button;
     private RatingBar speed_rate, g_force_rate, adrenaline_rate;
     private TextView rate_park_textView;
@@ -79,7 +76,6 @@ public class RatingFragment extends BaseFragment implements View.OnClickListener
 
         theme_selector = (Spinner) view.findViewById(R.id.theme_selecter);
         ride_selector = (Spinner) view.findViewById(R.id.ride_selector);
-        rate_text = (EditText) view.findViewById(R.id.rate_text);
         speed_rate = (RatingBar) view.findViewById(R.id.speed_rate);
         g_force_rate = (RatingBar) view.findViewById(R.id.g_force_rate);
         adrenaline_rate = (RatingBar) view.findViewById(R.id.adrenaline_rate);
@@ -98,17 +94,13 @@ public class RatingFragment extends BaseFragment implements View.OnClickListener
         switch (v.getId()) {
             case R.id.btn_fb_share:
                 ParkMapper selected_park = all_parks.get(theme_selector.getSelectedItemPosition());
-                if (!rate_text.getText().toString().equals("")) {
-                    fb_share(selected_park.getParkId());
-                    aws_rate_device(user_id,
-                            selected_rides.get(ride_selector.getSelectedItemPosition()).getDeviceId(),
-                            String.valueOf(speed_rate.getRating()),
-                            String.valueOf(g_force_rate.getRating()),
-                            String.valueOf(adrenaline_rate.getRating()),
-                            rate_text.getText().toString());
-                } else {
-                    Toast.makeText(getActivity(), "Enter comment", Toast.LENGTH_SHORT).show();
-                }
+                fb_share(selected_park.getParkId());
+                aws_rate_device(user_id,
+                        selected_rides.get(ride_selector.getSelectedItemPosition()).getDeviceId(),
+                        String.valueOf(speed_rate.getRating()),
+                        String.valueOf(g_force_rate.getRating()),
+                        String.valueOf(adrenaline_rate.getRating()),
+                        "");
                 break;
             default:
                 break;
